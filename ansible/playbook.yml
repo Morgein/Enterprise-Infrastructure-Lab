@@ -30,6 +30,14 @@
           - ufw
           - prometheus-node-exporter
         state: present
+    - name: Allow Prometheus web UI from lab network
+      community.general.ufw:
+        rule: allow
+        from_ip: "{{ lab_network }}"
+        port: "9090"
+        proto: tcp
+      when: ansible_default_ipv4.address == monitoring_ip
+
 
     - name: Allow SSH from lab network
       community.general.ufw:
@@ -45,6 +53,18 @@
         port: "9100"
         proto: tcp
     
+    - name: Allow Nodeexporter from local Docker containers
+      community.general.ufw:
+        rule: allow
+        from_ip: "172.16.0.0/12"
+        port: "9100"
+        proto: tcp
+    
+    - name: Set UFW default incoming policy to deny
+      community.general.ufw:
+        direction: incoming
+        policy: deny
+
     - name: Set UFW default incoming policy to deny
       community.general.ufw:
         direction: incoming
@@ -339,7 +359,7 @@
 
   vars:
     lab_network: "192.168.0.0/24"
-    monitoring_dir: "/opt/cloudlab-monitoring"
+    monitoring_dir: "/home/cloudadmin/cloudlab-monitoring"
 
 
   tasks:
@@ -409,6 +429,27 @@
       register: remove_old_grafana
       failed_when: false
       changed_when: remove_old_grafana.rc == 0
+    
+    - name: Remove old Grafana if exists
+      ansible.builtin.command:
+        cmd: docker rm -f cloudlab-grafana
+      register: remove_old_grafana
+      failed_when: false
+      changed_when: remove_old_grafana.rc == 0
+    
+    - name: Ensure native Prometheus service is stopped (prevents port 9090 conflicts)
+      ansible.builtin.systemd:
+        name: prometheus
+        state: stopped
+        enabled: false
+      failed_when: false
+
+    - name: Ensure native Grafana service is stopped (prevents port 3000 conflicts)
+      ansible.builtin.systemd:
+        name: grafana-server
+        state: stopped
+        enabled: false
+      failed_when: false
 
     - name: Deploy monitoring stack with Docker Compose
       ansible.builtin.command:
