@@ -27,7 +27,7 @@ This lab demonstrates practical infrastructure administration skills across seve
 
 ## Documentation
 
-- [Windows Server Active Directory Module](docs/windows-ad.md)
+- [Windows Server Active Directory, DNS and DHCP Module](docs/windows-ad.md)
 
 ---
 
@@ -69,15 +69,18 @@ The lab also includes a separate Windows Server infrastructure module for enterp
 
 | VM | IP Address | Role |
 |---|---:|---|
-| dc-vm | 10.10.10.10 | Windows Server 2022, Active Directory Domain Services, DNS |
+| dc-vm | 10.10.10.10 | Windows Server 2022, Active Directory Domain Services, DNS, DHCP |
 
-This module uses the separate `EnterpriseLabNet` Hyper-V internal network:
+This module uses a separate Hyper-V internal network:
 
 ```text
+Hyper-V switch: EnterpriseLabNet
 Network: 10.10.10.0/24
 Domain: enterprise.lab
 NetBIOS name: ENTERPRISE
 Domain Controller: dc-vm.enterprise.lab
+DHCP Scope: 10.10.10.100 - 10.10.10.200
+DNS Server for clients: 10.10.10.10
 ```
 
 Detailed documentation and screenshots are available here:
@@ -126,7 +129,7 @@ The application is not accessed directly by users. External access goes through 
 | Monitoring | Prometheus, Grafana, Node Exporter |
 | Automation | Ansible, Ansible Vault |
 | Scripting | Bash, PowerShell |
-| Administration | SSH, SCP, systemd, Linux logs, Active Directory Users and Computers, DNS Manager |
+| Administration | SSH, SCP, systemd, Linux logs, Active Directory Users and Computers, DNS Manager, DHCP Manager |
 
 ---
 
@@ -177,7 +180,12 @@ enterprise-infrastructure-lab/
         ├── 03-dns-forward-zone.png
         ├── 04-powershell-ad-dns-verification.png
         ├── 05-hyperv-dc-vm-checkpoint.png
-        └── 06-dc-vm-network-config.png
+        ├── 06-dc-vm-network-config.png
+        ├── 07-server-manager-dhcp.png
+        ├── 08-dhcp-addresses-pool.png
+        ├── 09-dhcp-scope-options.png
+        ├── 10-dhcp-powershell-verification.png
+        └── 11-hyperv-dhcp-checkpoint.png
 ```
 
 ---
@@ -568,7 +576,7 @@ docs/troubleshooting.md
 
 ![Grafana Dashboard](diagrams/grafana-dashboard.png)
 
-### Windows Server AD DS and DNS
+### Windows Server AD DS, DNS and DHCP
 
 Detailed Windows Server screenshots are documented in:
 
@@ -598,6 +606,7 @@ This project demonstrates hands-on experience with:
 - Windows Server domain controller configuration
 - Active Directory Domain Services basics
 - DNS zone verification and domain name resolution
+- DHCP Server configuration and scope options
 
 ---
 
@@ -605,7 +614,6 @@ This project demonstrates hands-on experience with:
 
 Planned improvements:
 
-- Add DHCP Server role to the Windows Server module
 - Create Organizational Units, users and groups
 - Add a Windows client joined to the domain
 - Configure basic Group Policy Objects
@@ -625,6 +633,6 @@ Current status: active lab project.
 
 The existing environment covers Linux server administration, reverse proxying, Docker application deployment, PostgreSQL, monitoring, firewall segmentation, backup scripts and Ansible automation.
 
-The Windows Server module currently includes a Windows Server 2022 domain controller with Active Directory Domain Services and DNS for the `enterprise.lab` domain.
+The Windows Server module currently includes a Windows Server 2022 domain controller with Active Directory Domain Services, DNS and DHCP for the `enterprise.lab` domain.
 
-The next major improvement is to extend the Windows Server module with DHCP, Organizational Units, users, groups, a domain-joined Windows client and basic Group Policy Objects.
+The next major improvement is to extend the Windows Server module with Organizational Units, users, groups, a domain-joined Windows client and basic Group Policy Objects.
