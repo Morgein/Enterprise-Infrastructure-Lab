@@ -1,56 +1,33 @@
 # Enterprise Infrastructure Lab
 
-A hands-on infrastructure administration lab built on a Windows 11 Hyper-V host with multiple Ubuntu Server virtual machines.  
-The lab demonstrates core skills used in IT administration, system administration, infrastructure operations, junior cloud engineering and DevOps-related roles.
+A hands-on infrastructure administration lab built on Hyper-V with Linux servers, Docker, Nginx, PostgreSQL, Prometheus, Grafana, firewall segmentation, backup and restore scripts, and Ansible automation.
 
-The environment includes Linux servers, Hyper-V virtual networking, Nginx reverse proxy, Dockerized FastAPI application, PostgreSQL database server, Prometheus/Grafana monitoring, UFW firewall segmentation, backup and restore scripts, and Ansible automation.
-
----
-
-## Project Purpose
-
-The goal of this project is to simulate a small production-like infrastructure environment and practice real operational tasks such as:
-
-- provisioning and managing virtual machines
-- configuring Linux servers and network services
-- separating application, proxy, database and monitoring roles
-- deploying a containerized application
-- configuring reverse proxy access
-- securing communication between services with firewall rules
-- monitoring server availability and performance
-- creating database backup and restore procedures
-- automating repeatable infrastructure tasks with Ansible
-- documenting architecture, troubleshooting steps and operational procedures
-
-This lab is designed to demonstrate practical infrastructure skills without using paid cloud resources.
+The project simulates a small enterprise infrastructure environment and focuses on practical day-to-day operations: server deployment, service separation, monitoring, troubleshooting, backup and restore, access control, and technical documentation.
 
 ---
 
-## Current Status
+## Project Scope
 
-The current version includes:
+This lab demonstrates practical infrastructure administration skills across several core areas:
 
-- Hyper-V based virtual lab environment
-- four Ubuntu Server virtual machines
-- FastAPI application deployed with Docker Compose
-- Nginx reverse proxy
-- PostgreSQL database server
-- Prometheus and Grafana monitoring
-- Node Exporter on Linux hosts
-- UFW firewall rules for basic network segmentation
-- Fail2ban for SSH protection
-- PostgreSQL backup and restore scripts
-- Ansible automation for infrastructure deployment
-- documentation for networking, security, monitoring and troubleshooting
-
-Planned enterprise extensions are listed in the [Roadmap](#roadmap) section.
+- Virtual machine provisioning and network planning with Hyper-V
+- Linux server administration and service troubleshooting
+- Static IP configuration and VM-to-VM connectivity
+- Reverse proxy configuration with Nginx
+- Dockerized application deployment
+- PostgreSQL database deployment and remote access configuration
+- Firewall segmentation with UFW
+- Monitoring with Prometheus, Grafana and Node Exporter
+- PostgreSQL backup and restore procedures
+- Infrastructure automation with Ansible
+- Secrets management with Ansible Vault
+- Technical documentation and operational troubleshooting
 
 ---
 
 ## Architecture Overview
 
-The lab runs on a Windows 11 machine with Hyper-V enabled.  
-Each major infrastructure function is separated into its own virtual machine.
+The lab runs on a Windows 11 Hyper-V host. Several Ubuntu Server virtual machines are connected through a local lab network.
 
 ```text
 Windows 11 / Hyper-V Host
@@ -58,19 +35,31 @@ Windows 11 / Hyper-V Host
         | Hyper-V Virtual Network
         | Network: 192.168.0.0/24
         |
------------------------------------------------------------------
-|               |                |                 |             |
-app-vm          proxy-vm         db-vm             monitoring-vm
-192.168.0.110   192.168.0.111    192.168.0.112     192.168.0.113
-Docker + API    Nginx Proxy      PostgreSQL        Prometheus + Grafana
+-----------------------------------------------------
+|              |              |                     |
+app-vm         proxy-vm       db-vm                 monitoring-vm
+192.168.0.110  192.168.0.111  192.168.0.112         192.168.0.113
+Docker + API   Nginx Proxy    PostgreSQL            Prometheus + Grafana
 ```
+
+The infrastructure is separated by server role. Each VM has a dedicated purpose, which makes the environment easier to troubleshoot, secure, monitor and document.
+
+---
+
+## Network Plan
+
+| VM | IP Address | Role |
+|---|---:|---|
+| app-vm | 192.168.0.110 | Dockerized FastAPI application |
+| proxy-vm | 192.168.0.111 | Nginx reverse proxy |
+| db-vm | 192.168.0.112 | PostgreSQL database server |
+| monitoring-vm | 192.168.0.113 | Prometheus and Grafana server |
 
 ---
 
 ## Request Flow
 
-User traffic is routed through the reverse proxy.  
-The application server communicates with the database server over the internal lab network.
+User requests are routed through the reverse proxy. The application communicates with the database over the internal lab network.
 
 ```text
 Windows browser / PowerShell
@@ -87,65 +76,26 @@ db-vm / PostgreSQL database
 192.168.0.112:5432
 ```
 
----
-
-## Network Plan
-
-| VM | IP Address | Role | Main Services |
-|---|---:|---|---|
-| app-vm | 192.168.0.110 | Application server | Docker, FastAPI, Node Exporter |
-| proxy-vm | 192.168.0.111 | Reverse proxy | Nginx, Node Exporter |
-| db-vm | 192.168.0.112 | Database server | PostgreSQL, backup scripts, Node Exporter |
-| monitoring-vm | 192.168.0.113 | Monitoring server | Prometheus, Grafana, Node Exporter |
-
-Local domain mapping:
-
-```text
-192.168.0.111 cloudlab.local
-```
+The application is not accessed directly by users. External access goes through the Nginx reverse proxy.
 
 ---
 
 ## Technology Stack
 
-### Virtualization and Infrastructure
-
-- Hyper-V
-- Ubuntu Server
-- Static IP addressing
-- SSH administration
-- PowerShell from Windows host
-
-### Application and Services
-
-- FastAPI
-- Docker
-- Docker Compose
-- Nginx reverse proxy
-- PostgreSQL
-
-### Monitoring and Operations
-
-- Prometheus
-- Grafana
-- Node Exporter
-- Linux service logs
-- systemd timers
-
-### Security and Access Control
-
-- UFW firewall
-- Fail2ban
-- SSH hardening basics
-- service-level network restrictions
-- Ansible Vault for secret handling
-
-### Automation
-
-- Ansible
-- Ansible inventory and playbooks
-- Jinja2 templates
-- Bash scripts
+| Area | Technologies |
+|---|---|
+| Virtualization | Hyper-V |
+| Operating system | Ubuntu Server |
+| Reverse proxy | Nginx |
+| Application runtime | Docker, Docker Compose |
+| Application | FastAPI |
+| Database | PostgreSQL |
+| Firewall | UFW |
+| Security hardening | Fail2ban, SSH hardening, restricted service access |
+| Monitoring | Prometheus, Grafana, Node Exporter |
+| Automation | Ansible, Ansible Vault |
+| Scripting | Bash, PowerShell |
+| Administration | SSH, SCP, systemd, Linux logs |
 
 ---
 
@@ -193,26 +143,30 @@ enterprise-infrastructure-lab/
 
 ---
 
-## Application Server
+## Application Component
 
-The application server runs a small FastAPI service in Docker.
+The application is a small FastAPI service connected to PostgreSQL.
+
+The API runs on the application VM:
 
 ```text
-app-vm: 192.168.0.110
-Application port: 8080
+192.168.0.110:8080
 ```
 
-The application is not intended to be accessed directly by users.  
-External access goes through the Nginx reverse proxy on `proxy-vm`.
+User traffic reaches the API through the Nginx reverse proxy:
+
+```text
+http://cloudlab.local
+```
 
 ### API Endpoints
 
 | Method | Endpoint | Description |
 |---|---|---|
-| GET | `/` | Basic API response |
+| GET | `/` | Basic API message |
 | GET | `/health` | Health check endpoint |
 | POST | `/notes` | Create a note in PostgreSQL |
-| GET | `/notes` | List notes stored in PostgreSQL |
+| GET | `/notes` | List notes from PostgreSQL |
 
 ### Example Requests
 
@@ -240,34 +194,37 @@ curl.exe http://cloudlab.local/notes
 
 ## Reverse Proxy
 
-Nginx runs on the proxy VM and forwards HTTP traffic to the application server.
+Nginx runs on the proxy VM:
 
 ```text
 proxy-vm: 192.168.0.111
-Nginx listens on: 80
-Upstream API: http://192.168.0.110:8080
 ```
 
-Nginx is used to practice:
+It forwards HTTP requests to the application VM:
 
-- reverse proxy configuration
-- service separation
-- local DNS-style access with `cloudlab.local`
-- application access through a controlled entry point
-- basic troubleshooting of HTTP and upstream errors
+```text
+http://192.168.0.110:8080
+```
+
+Local name resolution is configured with:
+
+```text
+192.168.0.111 cloudlab.local
+```
+
+The reverse proxy provides a single access point for the application and keeps direct application access separated from user traffic.
 
 ---
 
-## Database Server
+## PostgreSQL Database Server
 
-PostgreSQL runs on a separate VM.
+PostgreSQL runs on a dedicated VM:
 
 ```text
 db-vm: 192.168.0.112
-PostgreSQL port: 5432
 ```
 
-The database accepts connections only from the application server:
+The database accepts connections only from the application VM:
 
 ```text
 app-vm: 192.168.0.110
@@ -275,12 +232,56 @@ app-vm: 192.168.0.110
 
 PostgreSQL configuration includes:
 
-- database installation
-- user and database creation
-- `listen_addresses` configuration
+- PostgreSQL installation
+- remote listening configuration
 - `pg_hba.conf` access rules
-- firewall rule for port `5432`
-- backup and restore scripts
+- database and user creation
+- privilege configuration
+- UFW rule allowing port `5432` only from the application VM
+
+Expected PostgreSQL listening address:
+
+```text
+192.168.0.112:5432
+```
+
+---
+
+## Security and Network Segmentation
+
+The lab uses basic network segmentation with UFW firewall rules. Each VM exposes only the ports required for its role.
+
+### proxy-vm
+
+Allowed:
+
+- SSH from the lab network
+- HTTP port `80` from the lab network
+
+### app-vm
+
+Allowed:
+
+- SSH from the lab network
+- Application port `8080` only from proxy-vm `192.168.0.111`
+
+### db-vm
+
+Allowed:
+
+- SSH from the lab network
+- PostgreSQL port `5432` only from app-vm `192.168.0.110`
+
+### monitoring-vm
+
+Allowed:
+
+- SSH from the lab network
+- Prometheus port `9090` from the lab network
+- Grafana port `3000` from the lab network
+- Node Exporter port `9100` from the lab network
+
+This setup reduces unnecessary exposure between services and makes troubleshooting easier.
 
 ---
 
@@ -288,13 +289,13 @@ PostgreSQL configuration includes:
 
 Monitoring is implemented with Prometheus, Grafana and Node Exporter.
 
+The monitoring stack runs on:
+
 ```text
 monitoring-vm: 192.168.0.113
-Prometheus: http://192.168.0.113:9090
-Grafana:    http://192.168.0.113:3000
 ```
 
-### Prometheus Targets
+### Monitored Targets
 
 | Target | Role |
 |---|---|
@@ -303,20 +304,25 @@ Grafana:    http://192.168.0.113:3000
 | 192.168.0.112:9100 | db-vm |
 | 192.168.0.113:9100 | monitoring-vm |
 
-Grafana uses Prometheus as its datasource:
+Prometheus is available inside the lab network:
+
+```text
+http://192.168.0.113:9090
+```
+
+Grafana is available inside the lab network:
+
+```text
+http://192.168.0.113:3000
+```
+
+Grafana uses Prometheus as a datasource:
 
 ```text
 http://prometheus:9090
 ```
 
-Monitoring is used to observe:
-
-- VM availability
-- CPU usage
-- memory usage
-- disk usage
-- Linux host metrics
-- service availability through Prometheus targets
+Monitoring is used to verify host availability, resource usage and basic infrastructure health.
 
 ---
 
@@ -342,80 +348,19 @@ Backups are scheduled with a systemd timer:
 cloudlab-db-backup.timer
 ```
 
-The backup and restore part of the lab is used to practice:
-
-- database backup creation
-- restore testing
-- basic recovery procedures
-- service verification after restore
-- operational documentation
-
-Recommended recovery verification:
-
-```text
-1. Create test data through the API.
-2. Run a PostgreSQL backup.
-3. Remove or modify test data.
-4. Restore the database from backup.
-5. Verify that the API returns the restored data.
-```
-
----
-
-## Security Model
-
-The lab uses basic network segmentation with UFW firewall rules.
-
-### proxy-vm
-
-Allowed:
-
-- SSH from the lab network
-- HTTP port 80 from the lab network
-
-### app-vm
-
-Allowed:
-
-- SSH from the lab network
-- application port 8080 only from proxy-vm `192.168.0.111`
-
-### db-vm
-
-Allowed:
-
-- SSH from the lab network
-- PostgreSQL port 5432 only from app-vm `192.168.0.110`
-
-### monitoring-vm
-
-Allowed:
-
-- SSH from the lab network
-- Prometheus port 9090 from the lab network
-- Grafana port 3000 from the lab network
-- Node Exporter port 9100 from the lab network
-
-Security concepts practiced in this lab:
-
-- least-privilege network access
-- service isolation
-- SSH access control
-- firewall troubleshooting
-- separation of public-facing and internal services
-- secret handling with Ansible Vault
+The backup and restore process is documented to practice operational recovery, not only deployment.
 
 ---
 
 ## Ansible Automation
 
-Ansible is used to automate repeatable infrastructure configuration.
+Infrastructure configuration is automated with Ansible.
 
 The playbook automates:
 
 - common package installation
 - Node Exporter installation
-- UFW firewall configuration
+- UFW firewall rules
 - Nginx reverse proxy configuration
 - Docker installation
 - FastAPI application deployment with Docker Compose
@@ -438,10 +383,6 @@ db-vm ansible_host=192.168.0.112
 
 [monitoring]
 monitoring-vm ansible_host=192.168.0.113
-
-[all:vars]
-ansible_user=cloudadmin
-ansible_ssh_private_key_file=~/.ssh/id_rsa
 ```
 
 ### Run the Full Playbook
@@ -465,9 +406,9 @@ ansible-playbook -i inventory.ini playbook.yml --limit monitoring --ask-become-p
 
 ## Secrets Management
 
-PostgreSQL credentials are handled with Ansible Vault.
+PostgreSQL credentials are managed with Ansible Vault.
 
-The real vault file is not committed to the repository.
+The real vault file is not committed to Git.
 
 Example file:
 
@@ -478,7 +419,7 @@ ansible/group_vars/all/vault.example.yml
 Expected variable:
 
 ```yaml
-vault_postgres_password: "CHANGE_ME"
+vault_postgres_password: "CHANGE"
 ```
 
 Create a real vault file:
@@ -488,7 +429,7 @@ cp ansible/group_vars/all/vault.example.yml ansible/group_vars/all/vault.yml
 ansible-vault encrypt ansible/group_vars/all/vault.yml
 ```
 
-Edit the vault file:
+Edit it later:
 
 ```bash
 ansible-vault edit ansible/group_vars/all/vault.yml
@@ -496,7 +437,7 @@ ansible-vault edit ansible/group_vars/all/vault.yml
 
 ---
 
-## Basic Verification Commands
+## Operational Verification
 
 ### Check VM Connectivity
 
@@ -543,31 +484,25 @@ All targets should be in the `UP` state.
 
 ---
 
-## Troubleshooting Scenarios Practiced
+## Troubleshooting Practice
 
-This lab is also used for incident troubleshooting practice.
+This lab was also used to practice common infrastructure troubleshooting scenarios:
 
-Examples:
+- VM connectivity issues
+- incorrect static IP or gateway configuration
+- Nginx reverse proxy errors
+- API container downtime
+- Docker port conflicts
+- stale `docker-proxy` processes
+- PostgreSQL remote connection failures
+- firewall rule misconfiguration
+- service restart and log analysis
+- Prometheus target availability issues
 
-- API container is down
-- Nginx returns `502 Bad Gateway`
-- PostgreSQL is not reachable from the application server
-- Docker port `8080` is already in use
-- Prometheus target is down
-- firewall rule blocks expected traffic
-- SSH access fails
-- database restore needs verification
+Troubleshooting notes are documented in:
 
-Common diagnostic commands:
-
-```bash
-systemctl status <service>
-journalctl -u <service> --no-pager -n 100
-ss -lntp
-ufw status numbered
-docker ps
-docker logs <container>
-curl -v http://<host>:<port>/health
+```text
+docs/troubleshooting.md
 ```
 
 ---
@@ -598,38 +533,21 @@ curl -v http://<host>:<port>/health
 
 ## Skills Demonstrated
 
-| Area | Practical Work in This Lab |
-|---|---|
-| Virtualization | Hyper-V virtual machines and virtual networking |
-| Linux administration | Ubuntu Server setup, SSH, packages, services, logs |
-| Networking | static IPs, service ports, local domain mapping, connectivity checks |
-| Web infrastructure | Nginx reverse proxy and upstream troubleshooting |
-| Containers | Docker and Docker Compose application deployment |
-| Databases | PostgreSQL installation, access control, backup and restore |
-| Security | UFW rules, Fail2ban, SSH access, service isolation |
-| Monitoring | Prometheus, Grafana, Node Exporter, target verification |
-| Automation | Ansible playbook, inventory, templates, Vault |
-| Troubleshooting | service failures, firewall issues, port conflicts, database connectivity |
-| Documentation | architecture, security, monitoring and troubleshooting docs |
+This project demonstrates hands-on experience with:
 
----
-
-## What I Learned
-
-During this project, I practiced:
-
-- designing a small multi-VM infrastructure environment
-- separating infrastructure roles across dedicated servers
-- configuring Linux services in a repeatable way
-- deploying a containerized application behind a reverse proxy
-- connecting an application to a remote PostgreSQL database
-- restricting service access with firewall rules
-- monitoring Linux hosts with Prometheus and Grafana
-- writing backup and restore scripts
-- automating infrastructure tasks with Ansible
-- handling secrets with Ansible Vault
-- troubleshooting port conflicts, service failures and connectivity problems
-- documenting infrastructure so it can be understood and reproduced
+- Linux server administration
+- virtualized lab infrastructure
+- infrastructure service separation
+- Nginx reverse proxy configuration
+- Docker and Docker Compose deployment
+- PostgreSQL administration basics
+- firewall segmentation
+- monitoring and observability basics
+- backup and restore scripting
+- Ansible automation
+- secrets management
+- service troubleshooting
+- infrastructure documentation
 
 ---
 
@@ -637,36 +555,23 @@ During this project, I practiced:
 
 Planned improvements:
 
-- Add Windows Server VM with Active Directory Domain Services, DNS, DHCP and basic Group Policy
-- Add Windows client VM joined to the domain
-- Add iSCSI storage lab to simulate basic SAN/storage concepts
+- Add Windows Server VM with Active Directory Domain Services
+- Configure DNS, DHCP and basic Group Policy Objects
+- Add a Windows client joined to the domain
+- Add iSCSI storage simulation
 - Add Prometheus alert rules and Alertmanager
-- Add PostgreSQL exporter for database metrics
-- Add cAdvisor for Docker container metrics
+- Add PostgreSQL exporter
+- Add Docker container monitoring with cAdvisor
 - Add HTTPS with a local certificate authority
-- Add more incident runbooks for common infrastructure failures
-- Add a tested disaster recovery procedure with documented RTO/RPO
+- Add documented recovery testing with RTO/RPO
 - Rebuild the same architecture in Microsoft Azure using Terraform
 
 ---
 
-## Target Roles
+## Project Status
 
-This project is relevant for the following entry-level and junior infrastructure roles:
+Current status: active lab project.
 
-- IT Administrator
-- System Administrator
-- Infrastructure Specialist
-- Linux Administrator
-- Junior Cloud Engineer
-- Junior DevOps Engineer
-- Virtualization Support Engineer
-- Technical Support / L2 Infrastructure Support
+The existing environment covers Linux server administration, reverse proxying, Docker application deployment, PostgreSQL, monitoring, firewall segmentation, backup scripts and Ansible automation.
 
----
-
-## Summary
-
-This project demonstrates a practical infrastructure administration environment built with Hyper-V, Linux servers, Docker, Nginx, PostgreSQL, Prometheus, Grafana, firewall segmentation, backup scripts and Ansible automation.
-
-The main focus is not only deployment, but also day-to-day infrastructure operations: monitoring, troubleshooting, backup and restore, access control, service separation and technical documentation.
+The next major improvement is to add a Windows Server module with Active Directory, DNS, DHCP and Group Policy to extend the lab toward a more complete enterprise infrastructure environment.
