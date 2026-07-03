@@ -25,6 +25,12 @@ This lab demonstrates practical infrastructure administration skills across seve
 
 ---
 
+## Documentation
+
+- [Windows Server Active Directory Module](docs/windows-ad.md)
+
+---
+
 ## Architecture Overview
 
 The lab runs on a Windows 11 Hyper-V host. Several Ubuntu Server virtual machines are connected through a local lab network.
@@ -57,6 +63,31 @@ The infrastructure is separated by server role. Each VM has a dedicated purpose,
 
 ---
 
+## Windows Server Module
+
+The lab also includes a separate Windows Server infrastructure module for enterprise administration practice.
+
+| VM | IP Address | Role |
+|---|---:|---|
+| dc-vm | 10.10.10.10 | Windows Server 2022, Active Directory Domain Services, DNS |
+
+This module uses the separate `EnterpriseLabNet` Hyper-V internal network:
+
+```text
+Network: 10.10.10.0/24
+Domain: enterprise.lab
+NetBIOS name: ENTERPRISE
+Domain Controller: dc-vm.enterprise.lab
+```
+
+Detailed documentation and screenshots are available here:
+
+```text
+docs/windows-ad.md
+```
+
+---
+
 ## Request Flow
 
 User requests are routed through the reverse proxy. The application communicates with the database over the internal lab network.
@@ -85,7 +116,7 @@ The application is not accessed directly by users. External access goes through 
 | Area | Technologies |
 |---|---|
 | Virtualization | Hyper-V |
-| Operating system | Ubuntu Server |
+| Operating system | Ubuntu Server, Windows Server 2022 |
 | Reverse proxy | Nginx |
 | Application runtime | Docker, Docker Compose |
 | Application | FastAPI |
@@ -95,7 +126,7 @@ The application is not accessed directly by users. External access goes through 
 | Monitoring | Prometheus, Grafana, Node Exporter |
 | Automation | Ansible, Ansible Vault |
 | Scripting | Bash, PowerShell |
-| Administration | SSH, SCP, systemd, Linux logs |
+| Administration | SSH, SCP, systemd, Linux logs, Active Directory Users and Computers, DNS Manager |
 
 ---
 
@@ -131,14 +162,22 @@ enterprise-infrastructure-lab/
 │   ├── network.md
 │   ├── security.md
 │   ├── monitoring.md
-│   └── troubleshooting.md
+│   ├── troubleshooting.md
+│   └── windows-ad.md
 └── diagrams/
     ├── architecture.md
     ├── hyper-v-vms.png
     ├── api-health.png
     ├── api-notes.png
     ├── prometheus-targets.png
-    └── grafana-dashboard.png
+    ├── grafana-dashboard.png
+    └── windows-server/
+        ├── 01-server-manager-ad-dns.png
+        ├── 02-active-directory-domain.png
+        ├── 03-dns-forward-zone.png
+        ├── 04-powershell-ad-dns-verification.png
+        ├── 05-hyperv-dc-vm-checkpoint.png
+        └── 06-dc-vm-network-config.png
 ```
 
 ---
@@ -529,6 +568,14 @@ docs/troubleshooting.md
 
 ![Grafana Dashboard](diagrams/grafana-dashboard.png)
 
+### Windows Server AD DS and DNS
+
+Detailed Windows Server screenshots are documented in:
+
+```text
+docs/windows-ad.md
+```
+
 ---
 
 ## Skills Demonstrated
@@ -548,6 +595,9 @@ This project demonstrates hands-on experience with:
 - secrets management
 - service troubleshooting
 - infrastructure documentation
+- Windows Server domain controller configuration
+- Active Directory Domain Services basics
+- DNS zone verification and domain name resolution
 
 ---
 
@@ -555,9 +605,10 @@ This project demonstrates hands-on experience with:
 
 Planned improvements:
 
-- Add Windows Server VM with Active Directory Domain Services
-- Configure DNS, DHCP and basic Group Policy Objects
+- Add DHCP Server role to the Windows Server module
+- Create Organizational Units, users and groups
 - Add a Windows client joined to the domain
+- Configure basic Group Policy Objects
 - Add iSCSI storage simulation
 - Add Prometheus alert rules and Alertmanager
 - Add PostgreSQL exporter
@@ -574,4 +625,6 @@ Current status: active lab project.
 
 The existing environment covers Linux server administration, reverse proxying, Docker application deployment, PostgreSQL, monitoring, firewall segmentation, backup scripts and Ansible automation.
 
-The next major improvement is to add a Windows Server module with Active Directory, DNS, DHCP and Group Policy to extend the lab toward a more complete enterprise infrastructure environment.
+The Windows Server module currently includes a Windows Server 2022 domain controller with Active Directory Domain Services and DNS for the `enterprise.lab` domain.
+
+The next major improvement is to extend the Windows Server module with DHCP, Organizational Units, users, groups, a domain-joined Windows client and basic Group Policy Objects.
