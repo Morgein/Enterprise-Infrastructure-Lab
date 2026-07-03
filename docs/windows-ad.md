@@ -1,10 +1,10 @@
-# Windows Server Active Directory, DNS and DHCP Module
+# Windows Server Active Directory, DNS, DHCP and Domain Client Module
 
 ## Goal
 
 This module adds a Windows Server infrastructure component to the Enterprise Infrastructure Lab.
 
-The goal is to practice common enterprise infrastructure administration tasks with Windows Server 2022, Active Directory Domain Services, DNS, DHCP, domain controller configuration, static network configuration and operational verification.
+The goal is to practice common enterprise infrastructure administration tasks with Windows Server 2022, Active Directory Domain Services, DNS, DHCP, domain controller configuration, domain user management, Windows client domain join and operational verification.
 
 ---
 
@@ -13,6 +13,7 @@ The goal is to practice common enterprise infrastructure administration tasks wi
 | VM | IP Address | Role |
 |---|---:|---|
 | dc-vm | 10.10.10.10 | Windows Server 2022, Active Directory Domain Services, DNS, DHCP |
+| win-client-vm | 10.10.10.100 | Windows client joined to `enterprise.lab` |
 
 This module runs on a separate Hyper-V internal network:
 
@@ -20,6 +21,7 @@ This module runs on a separate Hyper-V internal network:
 Hyper-V switch: EnterpriseLabNet
 Network: 10.10.10.0/24
 Domain Controller IP: 10.10.10.10
+Client IP: 10.10.10.100
 ```
 
 ---
@@ -31,6 +33,8 @@ Domain: enterprise.lab
 NetBIOS name: ENTERPRISE
 Domain Controller: dc-vm.enterprise.lab
 Domain Controller IP: 10.10.10.10
+Domain client: win-client-vm
+Domain user: testuser01@enterprise.lab
 ```
 
 ---
@@ -49,6 +53,12 @@ Domain Controller IP: 10.10.10.10
 - DHCP authorization in Active Directory
 - DHCP IPv4 scope for the lab network
 - DHCP scope options for DNS server and DNS domain
+- Organizational Unit for lab users
+- Domain user `testuser01`
+- Windows client VM `win-client-vm`
+- DHCP lease issued to the Windows client
+- Windows client joined to the `enterprise.lab` domain
+- Successful domain logon as `ENTERPRISE\testuser01`
 - Hyper-V checkpoints after successful AD DS, DNS and DHCP configuration
 
 ---
@@ -89,9 +99,41 @@ DNS server option: 10.10.10.10
 DNS domain option: enterprise.lab
 ```
 
-The DHCP server is authorized in Active Directory and provides IP configuration for future domain clients in the lab network.
+The DHCP server is authorized in Active Directory and provides IP configuration for domain clients in the lab network.
 
 No default gateway option is configured yet because the current `EnterpriseLabNet` switch is an internal Hyper-V network. Gateway/NAT configuration can be added later if internet access is required for domain clients.
+
+---
+
+## Domain User and Client Configuration
+
+A test domain user was created for client logon verification:
+
+```text
+User: testuser01
+UPN: testuser01@enterprise.lab
+Domain logon: ENTERPRISE\testuser01
+OU: Lab Users
+```
+
+The Windows client VM was configured with DHCP and joined to the domain:
+
+```text
+Client hostname: win-client-vm
+Client IP: 10.10.10.100
+DHCP Server: 10.10.10.10
+DNS Server: 10.10.10.10
+DNS suffix: enterprise.lab
+Domain: enterprise.lab
+```
+
+The client successfully authenticated as:
+
+```text
+enterprise\testuser01
+```
+
+The computer object appeared in Active Directory under the default `Computers` container.
 
 ---
 
@@ -132,6 +174,8 @@ Get-DhcpServerInDC | Select-Object DnsName,IPAddress
 Get-DhcpServerv4Scope | Select-Object ScopeId,Name,StartRange,EndRange,State
 
 Get-DhcpServerv4OptionValue -ScopeId 10.10.10.0 | Select-Object OptionId,Name,Value
+
+Get-DhcpServerv4Lease -ScopeId 10.10.10.0
 ```
 
 Expected results:
@@ -146,6 +190,32 @@ EndRange: 10.10.10.200
 State: Active
 DNS Servers: 10.10.10.10
 DNS Domain Name: enterprise.lab
+Active lease: win-client-vm / 10.10.10.100
+```
+
+### Client domain verification
+
+On the Windows client:
+
+```powershell
+ipconfig /all
+hostname
+systeminfo | findstr /B /C:"Domain"
+nltest /dsgetdc:enterprise.lab
+whoami
+```
+
+Expected results:
+
+```text
+Host Name: win-client-vm
+Primary DNS Suffix: enterprise.lab
+IPv4 Address: 10.10.10.100
+DHCP Server: 10.10.10.10
+DNS Servers: 10.10.10.10
+Domain: enterprise.lab
+Domain Controller: dc-vm.enterprise.lab
+Logged-in user: enterprise\testuser01
 ```
 
 ---
@@ -196,6 +266,26 @@ DNS Domain Name: enterprise.lab
 
 ![Hyper-V DHCP Checkpoint](../diagrams/windows-server/11-hyperv-dhcp-checkpoint.png)
 
+### Windows Client DHCP Configuration
+
+![Windows Client DHCP Configuration](../diagrams/windows-server/12-client-dhcp-ipconfig.png)
+
+### Windows Client Domain Verification
+
+![Windows Client Domain Verification](../diagrams/windows-server/13-client-domain-verification.png)
+
+### Domain User Logon
+
+![Domain User Logon](../diagrams/windows-server/14-client-domain-user-login.png)
+
+### Active Directory Computer Object
+
+![Active Directory Computer Object](../diagrams/windows-server/15-ad-computer-object.png)
+
+### DHCP Active Lease
+
+![DHCP Active Lease](../diagrams/windows-server/16-dhcp-active-lease.png)
+
 ---
 
 ## Notes
@@ -211,16 +301,16 @@ dc-vm.enterprise.lab -> 10.10.10.10
 
 The DHCP scope does not include a router/default gateway option yet. This is intentional because the lab network is currently isolated through an internal Hyper-V switch.
 
+The domain user `testuser01` was added to the local `Remote Desktop Users` group on the Windows client VM to allow logon through the Hyper-V/VMConnect remote session mechanism.
+
 ---
 
 ## Next Steps
 
 Planned next steps for the Windows Server module:
 
-- Create Organizational Units
-- Create test users and groups
-- Add a Windows client VM
-- Configure the Windows client to receive an IP address from DHCP
-- Join the Windows client to the `enterprise.lab` domain
-- Apply basic Group Policy Objects
-- Document domain client verification and GPO results
+- Create a cleaner Organizational Unit structure for users, groups, servers and workstations
+- Move the Windows client computer object from the default `Computers` container to a dedicated workstation OU
+- Create security groups for administration and helpdesk scenarios
+- Configure basic Group Policy Objects
+- Document GPO application and verification with `gpupdate` and `gpresult`

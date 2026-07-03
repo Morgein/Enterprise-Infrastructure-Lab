@@ -27,7 +27,7 @@ This lab demonstrates practical infrastructure administration skills across seve
 
 ## Documentation
 
-- [Windows Server Active Directory, DNS and DHCP Module](docs/windows-ad.md)
+- [Windows Server Active Directory, DNS, DHCP and Domain Client Module](docs/windows-ad.md)
 
 ---
 
@@ -70,6 +70,7 @@ The lab also includes a separate Windows Server infrastructure module for enterp
 | VM | IP Address | Role |
 |---|---:|---|
 | dc-vm | 10.10.10.10 | Windows Server 2022, Active Directory Domain Services, DNS, DHCP |
+| win-client-vm | 10.10.10.100 | Windows client joined to `enterprise.lab` |
 
 This module uses a separate Hyper-V internal network:
 
@@ -81,6 +82,8 @@ NetBIOS name: ENTERPRISE
 Domain Controller: dc-vm.enterprise.lab
 DHCP Scope: 10.10.10.100 - 10.10.10.200
 DNS Server for clients: 10.10.10.10
+Domain client: win-client-vm
+Domain user: testuser01@enterprise.lab
 ```
 
 Detailed documentation and screenshots are available here:
@@ -185,7 +188,12 @@ enterprise-infrastructure-lab/
         ├── 08-dhcp-addresses-pool.png
         ├── 09-dhcp-scope-options.png
         ├── 10-dhcp-powershell-verification.png
-        └── 11-hyperv-dhcp-checkpoint.png
+        ├── 11-hyperv-dhcp-checkpoint.png
+        ├── 12-client-dhcp-ipconfig.png
+        ├── 13-client-domain-verification.png
+        ├── 14-client-domain-user-login.png
+        ├── 15-ad-computer-object.png
+        └── 16-dhcp-active-lease.png
 ```
 
 ---
@@ -576,7 +584,7 @@ docs/troubleshooting.md
 
 ![Grafana Dashboard](diagrams/grafana-dashboard.png)
 
-### Windows Server AD DS, DNS and DHCP
+### Windows Server AD DS, DNS, DHCP and Domain Client
 
 Detailed Windows Server screenshots are documented in:
 
@@ -607,6 +615,9 @@ This project demonstrates hands-on experience with:
 - Active Directory Domain Services basics
 - DNS zone verification and domain name resolution
 - DHCP Server configuration and scope options
+- Windows client domain join
+- domain user authentication
+- DHCP lease verification for domain clients
 
 ---
 
@@ -614,8 +625,9 @@ This project demonstrates hands-on experience with:
 
 Planned improvements:
 
-- Create Organizational Units, users and groups
-- Add a Windows client joined to the domain
+- Create a cleaner Organizational Unit structure for users, groups, servers and workstations
+- Move the Windows client computer object to a dedicated workstation OU
+- Create security groups for administration and helpdesk scenarios
 - Configure basic Group Policy Objects
 - Add iSCSI storage simulation
 - Add Prometheus alert rules and Alertmanager
@@ -635,4 +647,6 @@ The existing environment covers Linux server administration, reverse proxying, D
 
 The Windows Server module currently includes a Windows Server 2022 domain controller with Active Directory Domain Services, DNS and DHCP for the `enterprise.lab` domain.
 
-The next major improvement is to extend the Windows Server module with Organizational Units, users, groups, a domain-joined Windows client and basic Group Policy Objects.
+The module also includes a Windows client VM that receives its network configuration from DHCP, resolves the domain through the domain controller, is joined to `enterprise.lab` and supports domain logon with `testuser01`.
+
+The next major improvement is to extend the Windows Server module with a cleaner OU structure, security groups and basic Group Policy Objects.
