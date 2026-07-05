@@ -27,7 +27,7 @@ This lab demonstrates practical infrastructure administration skills across seve
 
 ## Documentation
 
-- [Windows Server Active Directory, DNS, DHCP, Domain Client, GPO, File Share and iSCSI Module](docs/windows-ad.md)
+- [Windows Server Active Directory, DNS, DHCP, Domain Client, GPO, File Share, iSCSI and Veeam Backup Module](docs/windows-ad.md)
 
 ---
 
@@ -705,3 +705,34 @@ The module also includes a domain file share `\\dc-vm\LabShare`, NTFS/share perm
 The lab now includes an iSCSI storage module. `storage-vm` provides an iSCSI target with a 20 GB virtual disk stored on `E:\iSCSI\LabLUN01.vhdx`. `win-client-vm` connects to the target as an iSCSI Initiator, initializes the LUN, formats it as NTFS and mounts it as `I:` with the label `ISCSI-LUN`.
 
 The next major improvement is to add Veeam Backup & Replication Community Edition, create a backup job and verify restore operations.
+
+
+## Veeam Backup Module
+
+| VM | IP Address | Role |
+|---|---:|---|
+| backup-vm | 10.10.10.30 | Veeam Backup & Replication Community Edition |
+
+The lab includes a Veeam Backup & Replication Community Edition server with an iSCSI-backed repository.
+
+```text
+Veeam server: backup-vm
+Repository volume: R: / VEEAM-REPO
+Repository path: R:\Backups
+Backup source: \dc-vm\LabShare
+Backup job: Backup LabShare to iSCSI Repository
+Restore test: successful file-level restore
+```
+
+Documentation:
+
+- [Windows Server AD, DNS, DHCP, GPO, SMB, iSCSI and Veeam Backup module](docs/windows-ad.md)
+
+
+### Additional skills demonstrated
+
+- Veeam Backup & Replication Community Edition installation
+- iSCSI-backed backup repository configuration
+- SMB file share backup job creation
+- backup job success verification
+- file-level restore and restore validation

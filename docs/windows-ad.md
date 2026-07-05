@@ -1,4 +1,4 @@
-# Windows Server Active Directory, DNS, DHCP, Domain Client, GPO, File Share and iSCSI Module
+# Windows Server Active Directory, DNS, DHCP, Domain Client, GPO, File Share, iSCSI and Veeam Backup Module
 
 ## Goal
 
@@ -649,3 +649,152 @@ Planned next steps for the Windows Server module:
 - Create a backup job
 - Run backup and restore verification
 - Document RPO/RTO basics and restore test results
+
+---
+
+## Veeam Backup & Restore Module
+
+### Goal
+
+This module adds Veeam Backup & Replication Community Edition to the Enterprise Infrastructure Lab and verifies a complete backup and restore workflow.
+
+The purpose is to demonstrate:
+
+- Veeam Backup & Replication installation on a dedicated backup server
+- iSCSI-backed backup repository configuration
+- SMB file share protection
+- successful backup job execution
+- file-level restore from backup
+- post-restore verification
+
+### Architecture
+
+| VM | IP Address | Role |
+|---|---:|---|
+| dc-vm | 10.10.10.10 | AD DS, DNS, DHCP, GPO, SMB file share |
+| storage-vm | 10.10.10.20 | iSCSI Target Server |
+| backup-vm | 10.10.10.30 | Veeam Backup & Replication Community Edition |
+| win-client-vm | 10.10.10.100 | Domain client and iSCSI initiator test client |
+
+### Veeam Configuration
+
+```text
+Backup server: backup-vm.enterprise.lab
+Backup server IP: 10.10.10.30
+Veeam edition: Community Edition
+Repository volume: R:
+Repository volume label: VEEAM-REPO
+Repository path used by Veeam: R:\Backups
+Repository type: Microsoft Windows backup repository
+Repository backing storage: iSCSI LUN from storage-vm
+iSCSI target: veeam-repo-target
+iSCSI virtual disk: E:\iSCSI\VeeamRepo01.vhdx
+Repository LUN size: 20 GB
+Backup source: \\dc-vm\LabShare
+Backup job: Backup LabShare to iSCSI Repository
+Job type: File Backup
+Schedule: Manual / not scheduled
+```
+
+### Backup Flow
+
+```text
+\\dc-vm\LabShare
+        ↓
+Veeam file backup job on backup-vm
+        ↓
+iSCSI-backed Veeam repository
+R:\Backups
+        ↓
+File-level restore verification
+```
+
+### Restore Test
+
+A test file was deleted from the source SMB share and restored from the Veeam backup.
+
+```text
+Deleted file: \\dc-vm\LabShare\veeam-source-test.txt
+Restore source: Veeam backup restore point
+Restore destination: original location
+Restore result: completed successfully
+Verification: file appeared again in \\dc-vm\LabShare and content was readable
+```
+
+### Verification Commands
+
+```powershell
+Get-Volume
+Get-IscsiSession
+dir R:\
+dir R:\Backups
+dir R:\Backups -Recurse
+Test-Path "\\dc-vm\LabShare"
+dir "\\dc-vm\LabShare"
+type "\\dc-vm\LabShare\veeam-source-test.txt"
+```
+
+Expected result:
+
+```text
+R: volume exists
+R: is labeled VEEAM-REPO
+iSCSI session is active and persistent
+Veeam backup files exist under R:\Backups
+\\dc-vm\LabShare is reachable
+veeam-source-test.txt was restored successfully
+file content is readable
+```
+
+### Veeam Screenshots
+
+#### Veeam Console Home
+
+![Veeam Console Home](../diagrams/windows-server/41-veeam-console-home.png)
+
+#### iSCSI Veeam Repository
+
+![iSCSI Veeam Repository](../diagrams/windows-server/42-veeam-iscsi-repository.png)
+
+#### Repository Volume and iSCSI Session
+
+![Repository Volume and iSCSI Session](../diagrams/windows-server/43-veeam-repository-volume.png)
+
+#### SMB File Share Source
+
+![SMB File Share Source](../diagrams/windows-server/44-veeam-smb-file-share-source.png)
+
+#### File Share Backup Job
+
+![File Share Backup Job](../diagrams/windows-server/45-veeam-file-share-backup-job.png)
+
+#### Repository Backup Files
+
+![Repository Backup Files](../diagrams/windows-server/46-veeam-repository-files.png)
+
+#### Source File Deleted
+
+![Source File Deleted](../diagrams/windows-server/49-veeam-source-file-deleted.png)
+
+#### File Restore Browser
+
+![File Restore Browser](../diagrams/windows-server/50-veeam-file-restore-browser.png)
+
+#### Restored File Verification
+
+![Restored File Verification](../diagrams/windows-server/51-veeam-file-restore-success.png)
+
+#### Restore Completed Successfully
+
+![Restore Completed Successfully](../diagrams/windows-server/52-veeam-restore-completed-successfully.png)
+
+#### Restore History
+
+![Restore History](../diagrams/windows-server/53-veeam-restore-history.png)
+
+### Lab Notes
+
+The Veeam repository size is intentionally small because this lab runs on a laptop. The goal is to demonstrate repository configuration, backup job execution and restore validation, not production-scale backup capacity planning.
+
+The repository path is `R:\Backups`. The folder `R:\VeeamRepo` was used earlier as an initial storage write test and is not the active Veeam repository path.
+
