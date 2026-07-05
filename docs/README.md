@@ -10,6 +10,7 @@ This repository is split into clear documentation sections instead of one huge d
 - [iSCSI Storage](windows/03-iscsi-storage.md)
 - [Veeam Backup and Restore](windows/04-veeam-backup-restore.md)
 - [Validation Checklist](windows/05-validation-checklist.md)
+- [DNS Aliases and Enterprise Naming](windows/06-dns-aliases.md)
 - [Full Windows report](windows/full-report.md)
 
 ## Runbooks

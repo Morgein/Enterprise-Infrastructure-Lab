@@ -1,5 +1,8 @@
 # Enterprise Infrastructure Lab
 
+A practical enterprise infrastructure lab built on Hyper-V.  
+The project demonstrates Windows Server administration, Active Directory, DNS, DHCP, Group Policy, SMB file sharing, iSCSI storage, Veeam backup and restore validation, plus a Linux/cloud automation stack.
+
 ## Project Overview
 
 This lab demonstrates the design, deployment and validation of a small enterprise infrastructure environment using Windows Server, Active Directory, Group Policy, SMB file sharing, iSCSI storage and Veeam Backup & Replication.
@@ -22,6 +25,7 @@ The project focuses on practical infrastructure administration tasks, operationa
 | iSCSI Storage | Done | iSCSI LUN connected and verified |
 | Veeam Backup | Done | SMB share backup job completed successfully |
 | Veeam Restore | Done | Deleted file restored and verified |
+| DNS Aliases | Done | Service aliases created and verified |
 | Linux / Cloud Lab | In progress | FastAPI, PostgreSQL, Nginx, Prometheus, Grafana, Ansible |
 
 ---
@@ -57,6 +61,7 @@ Veeam Server: backup-vm
 Veeam Repository Volume: R: / VEEAM-REPO
 Veeam Repository Path: R:\Backups
 Veeam Backup Source: \\dc-vm\LabShare
+Service aliases: files.enterprise.lab, storage.enterprise.lab, backup.enterprise.lab, veeam.enterprise.lab
 ```
 
 ---
@@ -76,6 +81,7 @@ Main Windows modules:
 3. [iSCSI Storage](docs/windows/03-iscsi-storage.md)
 4. [Veeam Backup and Restore](docs/windows/04-veeam-backup-restore.md)
 5. [Validation Checklist](docs/windows/05-validation-checklist.md)
+6. [DNS Aliases and Enterprise Naming](docs/windows/06-dns-aliases.md)
 
 Runbooks:
 

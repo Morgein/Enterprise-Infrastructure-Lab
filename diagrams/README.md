@@ -17,3 +17,10 @@ Current numbering convention:
 
 The screenshots are intentionally kept in one folder for now to avoid breaking existing links.  
 They can be split into subfolders later after all documentation links are updated.
+
+
+Updated numbering:
+
+```text
+54-57  DNS aliases and enterprise service naming
+```

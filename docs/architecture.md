@@ -50,3 +50,19 @@ storage-vm
     ├── LabLUN01.vhdx       → win-client-vm → I:
     └── VeeamRepo01.vhdx    → backup-vm     → R:
 ```
+
+
+## Service DNS Aliases
+
+| Alias | Target | Purpose |
+|---|---|---|
+| `files.enterprise.lab` | `dc-vm.enterprise.lab` | SMB file share service |
+| `storage.enterprise.lab` | `storage-vm.enterprise.lab` | iSCSI storage service |
+| `backup.enterprise.lab` | `backup-vm.enterprise.lab` | backup server |
+| `veeam.enterprise.lab` | `backup-vm.enterprise.lab` | Veeam Backup & Replication service |
+
+The main SMB path can now be documented as:
+
+```text
+\\files.enterprise.lab\LabShare
+```

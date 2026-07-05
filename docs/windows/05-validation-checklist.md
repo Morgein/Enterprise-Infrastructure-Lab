@@ -41,3 +41,12 @@ Use this checklist to prove that the lab is functional.
 - [x] Source file deleted
 - [x] File restored from backup
 - [x] Restored file verified
+
+
+## DNS Aliases
+
+- [x] `files.enterprise.lab` resolves to `dc-vm.enterprise.lab`
+- [x] `storage.enterprise.lab` resolves to `storage-vm.enterprise.lab`
+- [x] `backup.enterprise.lab` resolves to `backup-vm.enterprise.lab`
+- [x] `veeam.enterprise.lab` resolves to `backup-vm.enterprise.lab`
+- [x] `\\files.enterprise.lab\LabShare` is accessible

@@ -14,6 +14,7 @@ This section documents the Windows Server part of the lab.
 | iSCSI Storage | Done | Target, session and disk screenshots |
 | Veeam Backup | Done | Repository and job success screenshots |
 | Veeam Restore | Done | Restore browser and success screenshots |
+| DNS Aliases | Done | Service CNAME records and alias access verified |
 
 ## Main Reports
 
@@ -22,4 +23,5 @@ This section documents the Windows Server part of the lab.
 - [03 - iSCSI Storage](03-iscsi-storage.md)
 - [04 - Veeam Backup and Restore](04-veeam-backup-restore.md)
 - [05 - Validation Checklist](05-validation-checklist.md)
+- [06 - DNS Aliases and Enterprise Naming](06-dns-aliases.md)
 - [Full Windows report](full-report.md)
