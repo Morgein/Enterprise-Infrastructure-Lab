@@ -1,15 +1,10 @@
 # Enterprise Infrastructure Lab
 
-A practical enterprise infrastructure lab built on Hyper-V.  
-The project demonstrates Windows Server administration, Active Directory, DNS, DHCP, Group Policy, SMB file sharing, iSCSI storage, Veeam backup and restore validation, plus a Linux/cloud automation stack.
+## Project Overview
 
-This repository is designed as a portfolio project for roles such as:
+This lab demonstrates the design, deployment and validation of a small enterprise infrastructure environment using Windows Server, Active Directory, Group Policy, SMB file sharing, iSCSI storage and Veeam Backup & Replication.
 
-- IT Administrator
-- Infrastructure Specialist
-- Systems Administrator
-- Junior Cloud / DevOps Engineer
-- Backup / Storage / Windows Server Support Engineer
+The project focuses on practical infrastructure administration tasks, operational verification and backup/restore testing in a Hyper-V based lab environment.
 
 ---
 
