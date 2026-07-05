@@ -27,7 +27,7 @@ This lab demonstrates practical infrastructure administration skills across seve
 
 ## Documentation
 
-- [Windows Server Active Directory, DNS, DHCP, Domain Client, GPO and File Share Module](docs/windows-ad.md)
+- [Windows Server Active Directory, DNS, DHCP, Domain Client, GPO, File Share and iSCSI Module](docs/windows-ad.md)
 
 ---
 
@@ -70,6 +70,7 @@ The lab also includes a separate Windows Server infrastructure module for enterp
 | VM | IP Address | Role |
 |---|---:|---|
 | dc-vm | 10.10.10.10 | Windows Server 2022, AD DS, DNS, DHCP, GPO management, SMB file share |
+| storage-vm | 10.10.10.20 | Windows Server 2022, iSCSI Target Server |
 | win-client-vm | 10.10.10.100 | Windows client joined to `enterprise.lab` |
 
 This module uses a separate Hyper-V internal network:
@@ -90,6 +91,10 @@ User GPO: User Restrictions Baseline
 Drive Mapping GPO: User Drive Mapping
 File share: \\dc-vm\LabShare
 Mapped drive: Z:
+Storage server: storage-vm
+Iscsi target: lab-iscsi-target
+Iscsi virtual disk: E:\iSCSI\LabLUN01.vhdx
+Iscsi client volume: I: / ISCSI-LUN
 ```
 
 Detailed documentation and screenshots are available here:
@@ -215,7 +220,16 @@ enterprise-infrastructure-lab/
         ├── 28-gpresult-drive-mapping.png
         ├── 29-mapped-drive-net-use.png
         ├── 30-mapped-drive-explorer.png
-        └── 31-file-share-write-test.png
+        ├── 31-file-share-write-test.png
+        ├── 32-storage-vm-server-ou.png
+        ├── 33-iscsi-role-installed.png
+        ├── 34-iscsi-virtual-disk.png
+        ├── 35-iscsi-target-created.png
+        ├── 36-iscsi-target-connected.png
+        ├── 37-client-iscsi-portal-target.png
+        ├── 38-client-iscsi-session.png
+        ├── 39-client-iscsi-disk-volume.png
+        └── 40-iscsi-write-test.png
 ```
 
 ---
@@ -606,7 +620,7 @@ docs/troubleshooting.md
 
 ![Grafana Dashboard](diagrams/grafana-dashboard.png)
 
-### Windows Server AD DS, DNS, DHCP, Domain Client, GPO and File Share
+### Windows Server AD DS, DNS, DHCP, Domain Client, GPO, File Share and iSCSI
 
 Detailed Windows Server screenshots are documented in:
 
@@ -648,6 +662,10 @@ This project demonstrates hands-on experience with:
 - NTFS and share permissions
 - mapped network drive deployment through Group Policy Preferences
 - file share read/write verification from a domain client
+- iSCSI Target Server configuration
+- iSCSI virtual disk/LUN creation
+- iSCSI Initiator configuration on a Windows client
+- block storage initialization, NTFS formatting and write verification
 
 ---
 
@@ -655,10 +673,11 @@ This project demonstrates hands-on experience with:
 
 Planned improvements:
 
-- Add DNS records for Linux lab services such as Grafana and API
-- Create operational troubleshooting runbooks for domain logon, DNS, DHCP, GPO and file share issues
-- Add a helpdesk-style local administrator policy for selected users
-- Add backup/export documentation for GPOs and Windows Server configuration
+- Add Veeam Backup & Replication Community Edition
+- Create a backup repository
+- Create a backup job
+- Run backup and restore verification
+- Document RPO/RTO basics and restore test results
 - Add iSCSI storage simulation
 - Add Prometheus alert rules and Alertmanager
 - Add PostgreSQL exporter
@@ -683,4 +702,6 @@ The Windows Server module now includes an enterprise-style OU structure, domain 
 
 The module also includes a domain file share `\\dc-vm\LabShare`, NTFS/share permissions for `GG-Workstation-Users` and automatic drive mapping to `Z:` through Group Policy Preferences. Read/write access is verified from the domain client as `testuser01`.
 
-The next major improvement is to add DNS records for Linux services and create operational troubleshooting runbooks for domain logon, DNS, DHCP, GPO and file share issues.
+The lab now includes an iSCSI storage module. `storage-vm` provides an iSCSI target with a 20 GB virtual disk stored on `E:\iSCSI\LabLUN01.vhdx`. `win-client-vm` connects to the target as an iSCSI Initiator, initializes the LUN, formats it as NTFS and mounts it as `I:` with the label `ISCSI-LUN`.
+
+The next major improvement is to add Veeam Backup & Replication Community Edition, create a backup job and verify restore operations.

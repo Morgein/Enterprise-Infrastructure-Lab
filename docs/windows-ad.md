@@ -1,10 +1,10 @@
-# Windows Server Active Directory, DNS, DHCP, Domain Client, GPO and File Share Module
+# Windows Server Active Directory, DNS, DHCP, Domain Client, GPO, File Share and iSCSI Module
 
 ## Goal
 
 This module adds a Windows Server infrastructure component to the Enterprise Infrastructure Lab.
 
-The goal is to practice common enterprise infrastructure administration tasks with Windows Server 2022, Active Directory Domain Services, DNS, DHCP, domain controller configuration, domain user management, Windows client domain join, Organizational Units, security groups, Group Policy Objects, SMB file sharing, mapped network drives and operational verification.
+The goal is to practice common enterprise infrastructure administration tasks with Windows Server 2022, Active Directory Domain Services, DNS, DHCP, domain controller configuration, domain user management, Windows client domain join, Organizational Units, security groups, Group Policy Objects, SMB file sharing, mapped network drives, iSCSI storage and operational verification.
 
 ---
 
@@ -13,12 +13,14 @@ The goal is to practice common enterprise infrastructure administration tasks wi
 | VM | IP Address | Role |
 |---|---:|---|
 | dc-vm | 10.10.10.10 | Windows Server 2022, AD DS, DNS, DHCP, GPO management, SMB file share |
-| win-client-vm | 10.10.10.100 | Windows client joined to `enterprise.lab` |
+| storage-vm | 10.10.10.20 | Windows Server 2022, iSCSI Target Server |
+| win-client-vm | 10.10.10.100 | Windows client joined to `enterprise.lab`, SMB mapped drive client, iSCSI Initiator |
 
 ```text
 Hyper-V switch: EnterpriseLabNet
 Network: 10.10.10.0/24
 Domain Controller IP: 10.10.10.10
+Storage Server IP: 10.10.10.20
 Client IP: 10.10.10.100
 ```
 
@@ -31,6 +33,7 @@ Domain: enterprise.lab
 NetBIOS name: ENTERPRISE
 Domain Controller: dc-vm.enterprise.lab
 Domain Controller IP: 10.10.10.10
+Storage Server: storage-vm.enterprise.lab
 Domain client: win-client-vm
 Domain user: testuser01@enterprise.lab
 Helpdesk user: helpdesk01@enterprise.lab
@@ -58,6 +61,14 @@ Helpdesk user: helpdesk01@enterprise.lab
 - NTFS/share permissions for `GG-Workstation-Users`
 - Network drive `Z:` mapped through Group Policy Preferences
 - Successful file write test from the mapped drive as `testuser01`
+- iSCSI Target Server role installed on `storage-vm`
+- iSCSI virtual disk/LUN created on `E:\iSCSI\LabLUN01.vhdx`
+- iSCSI target `lab-iscsi-target` created
+- Initiator access restricted to `win-client-vm` by IP address `10.10.10.100`
+- iSCSI Initiator configured on `win-client-vm`
+- iSCSI session established from `win-client-vm` to `storage-vm`
+- iSCSI disk initialized, formatted as NTFS and mounted as `I:`
+- Successful iSCSI write test from the Windows client
 
 ---
 
@@ -76,6 +87,7 @@ Expected DNS resolution:
 ```text
 enterprise.lab -> 10.10.10.10
 dc-vm.enterprise.lab -> 10.10.10.10
+storage-vm.enterprise.lab -> 10.10.10.20
 ```
 
 ---
@@ -112,6 +124,7 @@ OU: Enterprise Lab / Users
 Group: GG-Helpdesk
 
 Client hostname: win-client-vm
+Storage Server IP: 10.10.10.20
 Client IP: 10.10.10.100
 DHCP Server: 10.10.10.10
 DNS Server: 10.10.10.10
@@ -265,6 +278,94 @@ NT AUTHORITY\SYSTEM               Full Control
 ```
 
 A test file was created from the mapped drive as `testuser01`, verifying write access through the mapped drive.
+
+---
+
+
+## iSCSI Storage Configuration
+
+The storage server `storage-vm` was configured as an iSCSI Target Server.
+
+```text
+iSCSI Target Server: storage-vm.enterprise.lab
+iSCSI Target Server IP: 10.10.10.20
+iSCSI data disk on storage-vm: E:
+iSCSI virtual disk path: E:\iSCSI\LabLUN01.vhdx
+iSCSI virtual disk size: 20 GB
+iSCSI target name: lab-iscsi-target
+Allowed initiator: IPAddress:10.10.10.100
+iSCSI Initiator: win-client-vm
+Client drive letter: I:
+Client volume label: ISCSI-LUN
+Client file system: NTFS
+```
+
+The iSCSI disk was connected from `win-client-vm`, initialized, formatted as NTFS and mounted as `I:`. A test file was written successfully to verify the storage path.
+
+Conceptually, this simulates basic SAN-style block storage:
+
+```text
+storage-vm
+└── iSCSI Target Server
+    └── E:\iSCSI\LabLUN01.vhdx
+        └── exported as lab-iscsi-target
+
+win-client-vm
+└── iSCSI Initiator
+    └── connected to 10.10.10.20:3260
+        └── disk mounted as I:
+```
+
+---
+
+## iSCSI Verification Commands
+
+On `storage-vm`:
+
+```powershell
+Get-WindowsFeature FS-iSCSITarget-Server
+Get-Service WinTarget
+Get-IscsiVirtualDisk | Format-List Path,Size
+Get-IscsiServerTarget | Format-List TargetName,InitiatorIds,Status
+```
+
+Expected results:
+
+```text
+iSCSI Target Server: Installed
+WinTarget: Running
+Path: E:\iSCSI\LabLUN01.vhdx
+Size: 21474836480
+TargetName: lab-iscsi-target
+InitiatorIds: IPAddress:10.10.10.100
+Status: Connected
+```
+
+On `win-client-vm`:
+
+```powershell
+Test-NetConnection 10.10.10.20 -Port 3260
+Get-IscsiTargetPortal
+Get-IscsiTarget
+Get-IscsiSession
+Get-Disk
+Get-Volume
+dir I:\
+```
+
+Expected results:
+
+```text
+TcpTestSucceeded: True
+TargetPortalAddress: 10.10.10.20
+IsConnected: True
+IsPersistent: True
+Disk: 20 GB
+DriveLetter: I
+FileSystemLabel: ISCSI-LUN
+FileSystemType: NTFS
+iscsi-test.txt exists
+```
 
 ---
 
@@ -481,6 +582,44 @@ testuser01-gpo-drive-test.txt
 
 ---
 
+
+### Storage VM in Servers OU
+
+![Storage VM in Servers OU](../diagrams/windows-server/32-storage-vm-server-ou.png)
+
+### iSCSI Target Server Role Installed
+
+![iSCSI Target Server Role Installed](../diagrams/windows-server/33-iscsi-role-installed.png)
+
+### iSCSI Virtual Disk
+
+![iSCSI Virtual Disk](../diagrams/windows-server/34-iscsi-virtual-disk.png)
+
+### iSCSI Target Created
+
+![iSCSI Target Created](../diagrams/windows-server/35-iscsi-target-created.png)
+
+### iSCSI Target Connected
+
+![iSCSI Target Connected](../diagrams/windows-server/36-iscsi-target-connected.png)
+
+### Client iSCSI Portal and Target
+
+![Client iSCSI Portal and Target](../diagrams/windows-server/37-client-iscsi-portal-target.png)
+
+### Client iSCSI Session
+
+![Client iSCSI Session](../diagrams/windows-server/38-client-iscsi-session.png)
+
+### Client iSCSI Disk and Volume
+
+![Client iSCSI Disk and Volume](../diagrams/windows-server/39-client-iscsi-disk-volume.png)
+
+### iSCSI Write Test
+
+![iSCSI Write Test](../diagrams/windows-server/40-iscsi-write-test.png)
+
+
 ## Notes
 
 The DNS client on the domain controller may show loopback addresses such as `127.0.0.1` or `::1`. This is expected for a domain controller because the DNS service runs locally on the same server.
@@ -488,6 +627,8 @@ The DNS client on the domain controller may show loopback addresses such as `127
 The DHCP scope does not include a router/default gateway option yet. This is intentional because the lab network is currently isolated through an internal Hyper-V switch.
 
 The file share is hosted on the domain controller for lab purposes. In a production environment, a dedicated file server would normally be preferred.
+
+The iSCSI storage configuration is a lab simulation of block storage. In a production environment, iSCSI targets are usually provided by dedicated storage arrays, SAN devices or dedicated storage servers.
 
 The domain user `testuser01` was added to the local `Remote Desktop Users` group on the Windows client VM to allow logon through the Hyper-V/VMConnect remote session mechanism.
 
@@ -503,7 +644,8 @@ OU=Users,OU=Enterprise Lab,DC=enterprise,DC=lab
 
 Planned next steps for the Windows Server module:
 
-- Add DNS records for Linux lab services such as Grafana and API
-- Create operational troubleshooting runbooks for domain logon, DNS, DHCP, GPO and file share issues
-- Add a helpdesk-style local administrator policy for selected users
-- Add backup/export documentation for GPOs and Windows Server configuration
+- Add Veeam Backup & Replication Community Edition
+- Create a backup repository
+- Create a backup job
+- Run backup and restore verification
+- Document RPO/RTO basics and restore test results
