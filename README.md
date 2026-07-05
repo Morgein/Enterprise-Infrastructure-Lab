@@ -27,7 +27,7 @@ This lab demonstrates practical infrastructure administration skills across seve
 
 ## Documentation
 
-- [Windows Server Active Directory, DNS, DHCP and Domain Client Module](docs/windows-ad.md)
+- [Windows Server Active Directory, DNS, DHCP, Domain Client and GPO Module](docs/windows-ad.md)
 
 ---
 
@@ -69,7 +69,7 @@ The lab also includes a separate Windows Server infrastructure module for enterp
 
 | VM | IP Address | Role |
 |---|---:|---|
-| dc-vm | 10.10.10.10 | Windows Server 2022, Active Directory Domain Services, DNS, DHCP |
+| dc-vm | 10.10.10.10 | Windows Server 2022, Active Directory Domain Services, DNS, DHCP, Group Policy Management |
 | win-client-vm | 10.10.10.100 | Windows client joined to `enterprise.lab` |
 
 This module uses a separate Hyper-V internal network:
@@ -84,6 +84,9 @@ DHCP Scope: 10.10.10.100 - 10.10.10.200
 DNS Server for clients: 10.10.10.10
 Domain client: win-client-vm
 Domain user: testuser01@enterprise.lab
+OU root: Enterprise Lab
+Computer GPO: Workstation Security Baseline
+User GPO: User Restrictions Baseline
 ```
 
 Detailed documentation and screenshots are available here:
@@ -193,7 +196,16 @@ enterprise-infrastructure-lab/
         ├── 13-client-domain-verification.png
         ├── 14-client-domain-user-login.png
         ├── 15-ad-computer-object.png
-        └── 16-dhcp-active-lease.png
+        ├── 16-dhcp-active-lease.png
+        ├── 17-ou-structure.png
+        ├── 18-ad-users.png
+        ├── 19-ad-groups.png
+        ├── 20-workstation-computer-ou.png
+        ├── 21-gpo-linked-workstations.png
+        ├── 22-gpo-linked-users.png
+        ├── 23-gpresult-user-gpo.png
+        ├── 23-legal-notice-login.png
+        └── 24-gpresult-computer-gpo.png
 ```
 
 ---
@@ -584,7 +596,7 @@ docs/troubleshooting.md
 
 ![Grafana Dashboard](diagrams/grafana-dashboard.png)
 
-### Windows Server AD DS, DNS, DHCP and Domain Client
+### Windows Server AD DS, DNS, DHCP, Domain Client and GPO
 
 Detailed Windows Server screenshots are documented in:
 
@@ -618,6 +630,10 @@ This project demonstrates hands-on experience with:
 - Windows client domain join
 - domain user authentication
 - DHCP lease verification for domain clients
+- Organizational Unit design
+- Active Directory security groups
+- Group Policy Object creation and verification
+- legal notice and user restriction policy testing
 
 ---
 
@@ -625,10 +641,10 @@ This project demonstrates hands-on experience with:
 
 Planned improvements:
 
-- Create a cleaner Organizational Unit structure for users, groups, servers and workstations
-- Move the Windows client computer object to a dedicated workstation OU
-- Create security groups for administration and helpdesk scenarios
-- Configure basic Group Policy Objects
+- Create a small file share for domain users
+- Map the file share through Group Policy
+- Add a helpdesk-style local administrator policy for selected users
+- Add DNS records for lab services such as Grafana and API
 - Add iSCSI storage simulation
 - Add Prometheus alert rules and Alertmanager
 - Add PostgreSQL exporter
@@ -649,4 +665,6 @@ The Windows Server module currently includes a Windows Server 2022 domain contro
 
 The module also includes a Windows client VM that receives its network configuration from DHCP, resolves the domain through the domain controller, is joined to `enterprise.lab` and supports domain logon with `testuser01`.
 
-The next major improvement is to extend the Windows Server module with a cleaner OU structure, security groups and basic Group Policy Objects.
+The Windows Server module now includes an enterprise-style OU structure, domain users, security groups and basic Group Policy Objects for workstation and user baselines. GPO application is verified with `gpresult` on the domain client.
+
+The next major improvement is to add a domain file share, map it through Group Policy and create operational troubleshooting runbooks for domain services.

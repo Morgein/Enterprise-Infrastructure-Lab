@@ -1,10 +1,10 @@
-# Windows Server Active Directory, DNS, DHCP and Domain Client Module
+# Windows Server Active Directory, DNS, DHCP, Domain Client and GPO Module
 
 ## Goal
 
 This module adds a Windows Server infrastructure component to the Enterprise Infrastructure Lab.
 
-The goal is to practice common enterprise infrastructure administration tasks with Windows Server 2022, Active Directory Domain Services, DNS, DHCP, domain controller configuration, domain user management, Windows client domain join and operational verification.
+The goal is to practice common enterprise infrastructure administration tasks with Windows Server 2022, Active Directory Domain Services, DNS, DHCP, domain controller configuration, domain user management, Windows client domain join, Organizational Units, security groups, Group Policy Objects and operational verification.
 
 ---
 
@@ -12,7 +12,7 @@ The goal is to practice common enterprise infrastructure administration tasks wi
 
 | VM | IP Address | Role |
 |---|---:|---|
-| dc-vm | 10.10.10.10 | Windows Server 2022, Active Directory Domain Services, DNS, DHCP |
+| dc-vm | 10.10.10.10 | Windows Server 2022, Active Directory Domain Services, DNS, DHCP, Group Policy Management |
 | win-client-vm | 10.10.10.100 | Windows client joined to `enterprise.lab` |
 
 This module runs on a separate Hyper-V internal network:
@@ -35,6 +35,7 @@ Domain Controller: dc-vm.enterprise.lab
 Domain Controller IP: 10.10.10.10
 Domain client: win-client-vm
 Domain user: testuser01@enterprise.lab
+Helpdesk user: helpdesk01@enterprise.lab
 ```
 
 ---
@@ -53,13 +54,19 @@ Domain user: testuser01@enterprise.lab
 - DHCP authorization in Active Directory
 - DHCP IPv4 scope for the lab network
 - DHCP scope options for DNS server and DNS domain
-- Organizational Unit for lab users
-- Domain user `testuser01`
 - Windows client VM `win-client-vm`
 - DHCP lease issued to the Windows client
 - Windows client joined to the `enterprise.lab` domain
+- Domain user `testuser01`
+- Helpdesk user `helpdesk01`
+- Organizational Unit structure for users, groups, servers, service accounts and workstations
+- Security groups for IT/admin/helpdesk/workstation-user scenarios
+- Windows client computer object moved to the `Workstations` OU
+- User GPO linked to the `Users` OU
+- Computer GPO linked to the `Workstations` OU
+- Successful application of user and computer GPOs verified with `gpresult`
+- Legal notice configured through Group Policy
 - Successful domain logon as `ENTERPRISE\testuser01`
-- Hyper-V checkpoints after successful AD DS, DNS and DHCP configuration
 
 ---
 
@@ -113,7 +120,16 @@ A test domain user was created for client logon verification:
 User: testuser01
 UPN: testuser01@enterprise.lab
 Domain logon: ENTERPRISE\testuser01
-OU: Lab Users
+OU: Enterprise Lab / Users
+```
+
+A helpdesk user was also created:
+
+```text
+User: helpdesk01
+UPN: helpdesk01@enterprise.lab
+OU: Enterprise Lab / Users
+Group: GG-Helpdesk
 ```
 
 The Windows client VM was configured with DHCP and joined to the domain:
@@ -125,6 +141,7 @@ DHCP Server: 10.10.10.10
 DNS Server: 10.10.10.10
 DNS suffix: enterprise.lab
 Domain: enterprise.lab
+OU: Enterprise Lab / Workstations
 ```
 
 The client successfully authenticated as:
@@ -133,7 +150,108 @@ The client successfully authenticated as:
 enterprise\testuser01
 ```
 
-The computer object appeared in Active Directory under the default `Computers` container.
+---
+
+## Organizational Unit Structure
+
+The following OU structure was created for the lab:
+
+```text
+enterprise.lab
+└── Enterprise Lab
+    ├── Groups
+    ├── Servers
+    ├── Service Accounts
+    ├── Users
+    └── Workstations
+```
+
+Objects:
+
+```text
+Users:
+- testuser01
+- helpdesk01
+
+Groups:
+- GG-Helpdesk
+- GG-IT-Admins
+- GG-Workstation-Users
+
+Workstations:
+- WIN-CLIENT-VM
+```
+
+---
+
+## Group Policy Configuration
+
+Two basic GPOs were created and linked to the appropriate OUs.
+
+### Workstation Security Baseline
+
+Linked to:
+
+```text
+OU=Workstations,OU=Enterprise Lab,DC=enterprise,DC=lab
+```
+
+Purpose:
+
+```text
+Computer-side workstation baseline policy.
+```
+
+Implemented settings include:
+
+```text
+- Legal notice before logon
+- Windows Firewall baseline configuration
+```
+
+Verified on the client with:
+
+```powershell
+gpresult /scope computer /r
+```
+
+Expected applied GPO:
+
+```text
+Workstation Security Baseline
+```
+
+### User Restrictions Baseline
+
+Linked to:
+
+```text
+OU=Users,OU=Enterprise Lab,DC=enterprise,DC=lab
+```
+
+Purpose:
+
+```text
+User-side restrictions for standard domain users.
+```
+
+Implemented settings include:
+
+```text
+- Prohibit access to Control Panel and PC settings
+```
+
+Verified on the client with:
+
+```powershell
+gpresult /scope user /r
+```
+
+Expected applied GPO:
+
+```text
+User Restrictions Baseline
+```
 
 ---
 
@@ -151,46 +269,14 @@ Get-NetIPAddress -InterfaceAlias "Ethernet" -AddressFamily IPv4
 Get-DnsClientServerAddress -InterfaceAlias "Ethernet"
 ```
 
-Expected results:
-
-```text
-whoami: enterprise\administrator
-DNSRoot: enterprise.lab
-NetBIOSName: ENTERPRISE
-PDCEmulator: dc-vm.enterprise.lab
-DNS service: Running
-NTDS service: Running
-enterprise.lab resolves to 10.10.10.10
-dc-vm.enterprise.lab resolves to 10.10.10.10
-```
-
 ### DHCP verification
 
 ```powershell
 Get-Service DHCPServer | Select-Object Status,Name,DisplayName
-
 Get-DhcpServerInDC | Select-Object DnsName,IPAddress
-
 Get-DhcpServerv4Scope | Select-Object ScopeId,Name,StartRange,EndRange,State
-
 Get-DhcpServerv4OptionValue -ScopeId 10.10.10.0 | Select-Object OptionId,Name,Value
-
 Get-DhcpServerv4Lease -ScopeId 10.10.10.0
-```
-
-Expected results:
-
-```text
-DHCPServer: Running
-Authorized DHCP server: dc-vm.enterprise.lab / 10.10.10.10
-ScopeId: 10.10.10.0
-Scope name: EnterpriseLab Scope
-StartRange: 10.10.10.100
-EndRange: 10.10.10.200
-State: Active
-DNS Servers: 10.10.10.10
-DNS Domain Name: enterprise.lab
-Active lease: win-client-vm / 10.10.10.100
 ```
 
 ### Client domain verification
@@ -205,17 +291,40 @@ nltest /dsgetdc:enterprise.lab
 whoami
 ```
 
-Expected results:
+### OU and GPO verification
+
+On the domain controller:
+
+```powershell
+Get-ADOrganizationalUnit -Filter * | Select-Object Name,DistinguishedName
+
+Get-ADUser -Filter * -SearchBase "OU=Users,OU=Enterprise Lab,DC=enterprise,DC=lab" |
+Select-Object Name,SamAccountName,Enabled
+
+Get-ADGroup -Filter * -SearchBase "OU=Groups,OU=Enterprise Lab,DC=enterprise,DC=lab" |
+Select-Object Name,GroupCategory,GroupScope
+
+Get-ADComputer "WIN-CLIENT-VM" -Properties DistinguishedName |
+Select-Object Name,DistinguishedName
+```
+
+On the Windows client:
+
+```powershell
+gpupdate /force
+gpresult /scope user /r
+gpresult /scope computer /r
+```
+
+Expected applied GPOs:
 
 ```text
-Host Name: win-client-vm
-Primary DNS Suffix: enterprise.lab
-IPv4 Address: 10.10.10.100
-DHCP Server: 10.10.10.10
-DNS Servers: 10.10.10.10
-Domain: enterprise.lab
-Domain Controller: dc-vm.enterprise.lab
-Logged-in user: enterprise\testuser01
+User settings:
+- User Restrictions Baseline
+
+Computer settings:
+- Workstation Security Baseline
+- Default Domain Policy
 ```
 
 ---
@@ -286,22 +395,57 @@ Logged-in user: enterprise\testuser01
 
 ![DHCP Active Lease](../diagrams/windows-server/16-dhcp-active-lease.png)
 
+### Organizational Unit Structure
+
+![Organizational Unit Structure](../diagrams/windows-server/17-ou-structure.png)
+
+### AD Users
+
+![AD Users](../diagrams/windows-server/18-ad-users.png)
+
+### AD Groups
+
+![AD Groups](../diagrams/windows-server/19-ad-groups.png)
+
+### Workstation Computer OU
+
+![Workstation Computer OU](../diagrams/windows-server/20-workstation-computer-ou.png)
+
+### GPO Linked to Workstations OU
+
+![GPO Linked to Workstations OU](../diagrams/windows-server/21-gpo-linked-workstations.png)
+
+### GPO Linked to Users OU
+
+![GPO Linked to Users OU](../diagrams/windows-server/22-gpo-linked-users.png)
+
+### User GPO Result
+
+![User GPO Result](../diagrams/windows-server/23-gpresult-user-gpo.png)
+
+### Legal Notice from GPO
+
+![Legal Notice from GPO](../diagrams/windows-server/23-legal-notice-login.png)
+
+### Computer GPO Result
+
+![Computer GPO Result](../diagrams/windows-server/24-gpresult-computer-gpo.png)
+
 ---
 
 ## Notes
 
 The DNS client on the domain controller may show loopback addresses such as `127.0.0.1` or `::1`. This is expected for a domain controller because the DNS service runs locally on the same server.
 
-The important verification point is that the domain and domain controller records resolve correctly:
-
-```text
-enterprise.lab -> 10.10.10.10
-dc-vm.enterprise.lab -> 10.10.10.10
-```
-
 The DHCP scope does not include a router/default gateway option yet. This is intentional because the lab network is currently isolated through an internal Hyper-V switch.
 
 The domain user `testuser01` was added to the local `Remote Desktop Users` group on the Windows client VM to allow logon through the Hyper-V/VMConnect remote session mechanism.
+
+A legacy `Lab Users` OU may remain from the earlier user-creation step. Active users for the final structure are placed under:
+
+```text
+OU=Users,OU=Enterprise Lab,DC=enterprise,DC=lab
+```
 
 ---
 
@@ -309,8 +453,8 @@ The domain user `testuser01` was added to the local `Remote Desktop Users` group
 
 Planned next steps for the Windows Server module:
 
-- Create a cleaner Organizational Unit structure for users, groups, servers and workstations
-- Move the Windows client computer object from the default `Computers` container to a dedicated workstation OU
-- Create security groups for administration and helpdesk scenarios
-- Configure basic Group Policy Objects
-- Document GPO application and verification with `gpupdate` and `gpresult`
+- Create a small file share for domain users
+- Map the file share through Group Policy
+- Add a helpdesk-style local administrator policy for selected users
+- Add DNS records for lab services such as Grafana and API
+- Document troubleshooting runbooks for domain logon, DNS, DHCP and GPO issues
