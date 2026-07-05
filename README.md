@@ -27,7 +27,7 @@ This lab demonstrates practical infrastructure administration skills across seve
 
 ## Documentation
 
-- [Windows Server Active Directory, DNS, DHCP, Domain Client and GPO Module](docs/windows-ad.md)
+- [Windows Server Active Directory, DNS, DHCP, Domain Client, GPO and File Share Module](docs/windows-ad.md)
 
 ---
 
@@ -69,7 +69,7 @@ The lab also includes a separate Windows Server infrastructure module for enterp
 
 | VM | IP Address | Role |
 |---|---:|---|
-| dc-vm | 10.10.10.10 | Windows Server 2022, Active Directory Domain Services, DNS, DHCP, Group Policy Management |
+| dc-vm | 10.10.10.10 | Windows Server 2022, AD DS, DNS, DHCP, GPO management, SMB file share |
 | win-client-vm | 10.10.10.100 | Windows client joined to `enterprise.lab` |
 
 This module uses a separate Hyper-V internal network:
@@ -87,6 +87,9 @@ Domain user: testuser01@enterprise.lab
 OU root: Enterprise Lab
 Computer GPO: Workstation Security Baseline
 User GPO: User Restrictions Baseline
+Drive Mapping GPO: User Drive Mapping
+File share: \\dc-vm\LabShare
+Mapped drive: Z:
 ```
 
 Detailed documentation and screenshots are available here:
@@ -205,7 +208,14 @@ enterprise-infrastructure-lab/
         ├── 22-gpo-linked-users.png
         ├── 23-gpresult-user-gpo.png
         ├── 23-legal-notice-login.png
-        └── 24-gpresult-computer-gpo.png
+        ├── 24-gpresult-computer-gpo.png
+        ├── 25-smb-share-created.png
+        ├── 26-smb-share-permissions.png
+        ├── 27-drive-mapping-gpo.png
+        ├── 28-gpresult-drive-mapping.png
+        ├── 29-mapped-drive-net-use.png
+        ├── 30-mapped-drive-explorer.png
+        └── 31-file-share-write-test.png
 ```
 
 ---
@@ -596,7 +606,7 @@ docs/troubleshooting.md
 
 ![Grafana Dashboard](diagrams/grafana-dashboard.png)
 
-### Windows Server AD DS, DNS, DHCP, Domain Client and GPO
+### Windows Server AD DS, DNS, DHCP, Domain Client, GPO and File Share
 
 Detailed Windows Server screenshots are documented in:
 
@@ -634,6 +644,10 @@ This project demonstrates hands-on experience with:
 - Active Directory security groups
 - Group Policy Object creation and verification
 - legal notice and user restriction policy testing
+- SMB file share configuration
+- NTFS and share permissions
+- mapped network drive deployment through Group Policy Preferences
+- file share read/write verification from a domain client
 
 ---
 
@@ -641,10 +655,10 @@ This project demonstrates hands-on experience with:
 
 Planned improvements:
 
-- Create a small file share for domain users
-- Map the file share through Group Policy
+- Add DNS records for Linux lab services such as Grafana and API
+- Create operational troubleshooting runbooks for domain logon, DNS, DHCP, GPO and file share issues
 - Add a helpdesk-style local administrator policy for selected users
-- Add DNS records for lab services such as Grafana and API
+- Add backup/export documentation for GPOs and Windows Server configuration
 - Add iSCSI storage simulation
 - Add Prometheus alert rules and Alertmanager
 - Add PostgreSQL exporter
@@ -667,4 +681,6 @@ The module also includes a Windows client VM that receives its network configura
 
 The Windows Server module now includes an enterprise-style OU structure, domain users, security groups and basic Group Policy Objects for workstation and user baselines. GPO application is verified with `gpresult` on the domain client.
 
-The next major improvement is to add a domain file share, map it through Group Policy and create operational troubleshooting runbooks for domain services.
+The module also includes a domain file share `\\dc-vm\LabShare`, NTFS/share permissions for `GG-Workstation-Users` and automatic drive mapping to `Z:` through Group Policy Preferences. Read/write access is verified from the domain client as `testuser01`.
+
+The next major improvement is to add DNS records for Linux services and create operational troubleshooting runbooks for domain logon, DNS, DHCP, GPO and file share issues.
