@@ -1,0 +1,18 @@
+flowchart LR
+    subgraph H["Hyper-V Host"]
+        subgraph E["EnterpriseLabNet — 10.10.10.0/24"]
+            DC["dc-vm<br/>10.10.10.10<br/>AD DS · DNS · DHCP · GPO<br/>SMB: files.enterprise.lab"]
+            ST["storage-vm<br/>10.10.10.20<br/>iSCSI Target Server<br/>LabLUN01 + VeeamRepo01"]
+            BK["backup-vm<br/>10.10.10.30<br/>Veeam Backup & Replication CE<br/>Repository: R:\\Backups"]
+            CL["win-client-vm<br/>10.10.10.100<br/>Domain client<br/>Z: mapped drive · I: iSCSI disk"]
+            DB["db-vm<br/>10.10.10.40<br/>Linux workload<br/>CIFS mount: /mnt/labshare"]
+        end
+    end
+
+    DC -->|"DNS aliases<br/>files · storage · backup · veeam"| DB
+    DC -->|"SMB share<br/>\\\\files.enterprise.lab\\LabShare"| CL
+    DC -->|"SMB share<br/>\\\\files.enterprise.lab\\LabShare\\linux-backups"| DB
+    ST -->|"iSCSI LUN<br/>LabLUN01.vhdx"| CL
+    ST -->|"iSCSI LUN<br/>VeeamRepo01.vhdx"| BK
+    BK -->|"File backup job<br/>Backup LabShare to iSCSI Repository"| DC
+    BK -->|"Restore verification<br/>Windows + Linux backup files"| DC

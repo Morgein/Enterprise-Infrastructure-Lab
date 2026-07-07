@@ -1,13 +1,12 @@
 # Enterprise Infrastructure Lab
 
-A practical enterprise infrastructure lab built on Hyper-V.  
-The project demonstrates Windows Server administration, Active Directory, DNS, DHCP, Group Policy, SMB file sharing, iSCSI storage, Veeam backup and restore validation, plus a Linux/cloud automation stack.
-
 ## Project Overview
 
-This lab demonstrates the design, deployment and validation of a small enterprise infrastructure environment using Windows Server, Active Directory, Group Policy, SMB file sharing, iSCSI storage and Veeam Backup & Replication.
+This lab demonstrates the design, deployment and validation of a small enterprise infrastructure environment using Windows Server, Active Directory, Group Policy, SMB file sharing, iSCSI storage, Veeam Backup & Replication, and Linux-to-Windows backup integration.
 
-The project focuses on practical infrastructure administration tasks, operational verification and backup/restore testing in a Hyper-V based lab environment.
+The project focuses on practical infrastructure administration tasks, operational verification, troubleshooting and backup/restore testing in a Hyper-V based lab environment.
+
+![Enterprise Infrastructure Lab Architecture](diagrams/enterprise-infrastructure-architecture.svg)
 
 ---
 
@@ -20,61 +19,84 @@ The project focuses on practical infrastructure administration tasks, operationa
 | DHCP | Done | `10.10.10.0/24` scope configured |
 | Domain Client | Done | Windows client joined to domain |
 | OU / Groups / GPO | Done | Users, workstations and GPO baselines configured |
-| SMB File Share | Done | `\\dc-vm\LabShare` with domain permissions |
+| SMB File Share | Done | `\\files.enterprise.lab\LabShare` accessible |
 | Mapped Network Drive | Done | `Z:` deployed through GPO |
-| iSCSI Storage | Done | iSCSI LUN connected and verified |
+| iSCSI Storage | Done | Windows iSCSI LUNs connected and verified |
 | Veeam Backup | Done | SMB share backup job completed successfully |
-| Veeam Restore | Done | Deleted file restored and verified |
-| DNS Aliases | Done | Service aliases created and verified |
-| Linux / Cloud Lab | In progress | FastAPI, PostgreSQL, Nginx, Prometheus, Grafana, Ansible |
+| Veeam Restore | Done | Deleted files restored and verified |
+| DNS Aliases | Done | Enterprise-style service aliases created |
+| Cross-Platform Backup | Done | Linux backup file written to Windows SMB share and restored through Veeam |
+| Final Validation | Done | DNS, SMB, iSCSI and Veeam services verified together |
 
 ---
 
-## Architecture
+## Architecture Summary
 
 | VM | IP Address | Role |
 |---|---:|---|
 | `dc-vm` | `10.10.10.10` | AD DS, DNS, DHCP, GPO, SMB file share |
 | `storage-vm` | `10.10.10.20` | Windows Server iSCSI Target Server |
 | `backup-vm` | `10.10.10.30` | Veeam Backup & Replication Community Edition |
-| `win-client-vm` | `10.10.10.100` | Domain client, mapped drive, iSCSI initiator test |
-| `api-vm` | `192.168.0.110` | FastAPI application |
-| `proxy-vm` | `192.168.0.111` | Nginx reverse proxy |
-| `db-vm` | `192.168.0.112` | PostgreSQL |
-| `monitoring-vm` | `192.168.0.113` | Prometheus and Grafana |
+| `db-vm` | `10.10.10.40` | Linux VM integrated with Windows SMB backup workflow |
+| `win-client-vm` | `10.10.10.100` | Domain client, mapped drive and iSCSI initiator test |
 
 ---
 
-## Core Windows Infrastructure
+## Service DNS Aliases
+
+| Alias | Target | Purpose |
+|---|---|---|
+| `files.enterprise.lab` | `dc-vm.enterprise.lab` | SMB file share service |
+| `storage.enterprise.lab` | `storage-vm.enterprise.lab` | iSCSI storage service |
+| `backup.enterprise.lab` | `backup-vm.enterprise.lab` | Backup server |
+| `veeam.enterprise.lab` | `backup-vm.enterprise.lab` | Veeam backup service |
+
+---
+
+## Validated End-to-End Workflows
+
+### Windows Infrastructure
 
 ```text
-Domain: enterprise.lab
-NetBIOS: ENTERPRISE
-Domain Controller: dc-vm.enterprise.lab
-DNS/DHCP Server: 10.10.10.10
-SMB Share: \\dc-vm\LabShare
-Mapped Drive: Z:
-Storage Server: storage-vm
-iSCSI Target: lab-iscsi-target
-Client iSCSI Volume: I: / ISCSI-LUN
-Veeam Server: backup-vm
-Veeam Repository Volume: R: / VEEAM-REPO
-Veeam Repository Path: R:\Backups
-Veeam Backup Source: \\dc-vm\LabShare
-Service aliases: files.enterprise.lab, storage.enterprise.lab, backup.enterprise.lab, veeam.enterprise.lab
+Active Directory
+→ DNS/DHCP
+→ domain client
+→ OU/GPO/security groups
+→ SMB share
+→ mapped network drive
+```
+
+### Storage and Backup
+
+```text
+storage-vm iSCSI Target
+→ backup-vm iSCSI Initiator
+→ R:\Backups Veeam repository
+→ file backup job
+→ file-level restore verification
+```
+
+### Cross-Platform Backup
+
+```text
+Linux db-vm
+→ CIFS mount //files.enterprise.lab/LabShare
+→ Linux backup file written to Windows SMB share
+→ Veeam backup job
+→ iSCSI-backed repository
+→ file restored from Veeam
+→ restore verified from Windows
 ```
 
 ---
 
 ## Documentation Map
 
-Start here:
-
 - [Documentation index](docs/README.md)
-- [Windows infrastructure overview](docs/windows/README.md)
-- [Full Windows module report](docs/windows/full-report.md)
+- [Architecture overview](docs/architecture.md)
+- [Project summary](PROJECT_SUMMARY.md)
 
-Main Windows modules:
+Windows infrastructure modules:
 
 1. [Active Directory, DNS and DHCP](docs/windows/01-active-directory-dns-dhcp.md)
 2. [Domain Client, OU, GPO and SMB Share](docs/windows/02-domain-client-gpo-smb.md)
@@ -82,6 +104,8 @@ Main Windows modules:
 4. [Veeam Backup and Restore](docs/windows/04-veeam-backup-restore.md)
 5. [Validation Checklist](docs/windows/05-validation-checklist.md)
 6. [DNS Aliases and Enterprise Naming](docs/windows/06-dns-aliases.md)
+7. [Cross-Platform Linux-to-Windows Backup Integration](docs/windows/07-cross-platform-backup-integration.md)
+8. [Final Validation and Architecture](docs/windows/08-final-validation-and-architecture.md)
 
 Runbooks:
 
@@ -89,128 +113,39 @@ Runbooks:
 - [iSCSI troubleshooting](docs/runbooks/iscsi-troubleshooting.md)
 - [Veeam restore procedure](docs/runbooks/veeam-restore-procedure.md)
 
-Cloud/Linux part:
-
-- [Linux and Cloud Lab overview](docs/cloud/README.md)
-
----
-
-## Repository Structure
-
-```text
-.
-├── README.md
-├── ansible/
-│   ├── inventory.ini
-│   ├── playbook.yml
-│   └── group_vars/
-├── app/
-│   ├── app.py
-│   ├── Dockerfile
-│   └── docker-compose.yml
-├── docs/
-│   ├── README.md
-│   ├── architecture.md
-│   ├── windows/
-│   │   ├── README.md
-│   │   ├── 01-active-directory-dns-dhcp.md
-│   │   ├── 02-domain-client-gpo-smb.md
-│   │   ├── 03-iscsi-storage.md
-│   │   ├── 04-veeam-backup-restore.md
-│   │   ├── 05-validation-checklist.md
-│   │   └── full-report.md
-│   ├── runbooks/
-│   └── cloud/
-├── diagrams/
-│   ├── README.md
-│   └── windows-server/
-├── monitoring/
-├── nginx/
-└── scripts/
-    ├── backup-postgres.sh
-    ├── restore-postgres.sh
-    └── windows/
-        └── lab-health-check.ps1
-```
-
 ---
 
 ## Skills Demonstrated
 
-### Windows Server / Infrastructure
-
-- Active Directory Domain Services deployment
-- AD-integrated DNS
-- DHCP scope configuration
-- Domain join troubleshooting
-- OU and security group design
+- Windows Server 2022 administration
+- Active Directory Domain Services
+- DNS and DHCP
+- Organizational Units and security groups
 - Group Policy Objects
-- SMB file share permissions
-- Mapped network drives through GPO
+- SMB file sharing
+- NTFS and share permissions
+- Mapped network drives
 - iSCSI Target and Initiator configuration
 - Veeam Backup & Replication Community Edition
-- Backup repository configuration
 - File backup job creation
 - File-level restore validation
-
-### Linux / Cloud / Automation
-
-- Docker and Docker Compose
-- FastAPI application deployment
-- PostgreSQL service deployment
-- Nginx reverse proxy
-- Prometheus and Grafana monitoring
-- Ansible automation
-- Basic backup and restore scripting
+- Linux CIFS/SMB integration
+- Cross-platform backup workflow
+- PowerShell validation
+- Technical documentation and runbooks
 
 ---
 
-## Current Best Portfolio Story
+## Final Result
 
-The strongest completed part of this lab is the Windows infrastructure and backup workflow:
-
-```text
-Active Directory domain
-→ DHCP and DNS
-→ domain client
-→ OU/GPO/security groups
-→ SMB file share
-→ mapped network drive
-→ iSCSI storage
-→ Veeam repository
-→ file backup job
-→ file deletion
-→ restore from backup
-→ restore verification
-```
-
-This shows not only installation, but also operational validation.
-
----
-
-## Next Improvements
-
-- Add DNS aliases for internal services such as Grafana and API
-- Add monitoring screenshots for Windows services
-- Add operational runbooks for common incidents
-- Add Hyper-V VM backup test with Veeam
-- Add a final architecture diagram
-- Add a LinkedIn/GitHub project summary
-
-
-## Cross-Platform Linux-to-Windows Backup Integration
-
-The Linux `db-vm` is connected to the Windows enterprise network and writes backup data to the Windows SMB share through the DNS alias `files.enterprise.lab`.
+This lab proves a complete infrastructure workflow:
 
 ```text
-db-vm
-→ //files.enterprise.lab/LabShare
-→ \\files.enterprise.lab\LabShare\linux-backups
-→ Veeam backup job
-→ R:\Backups
-→ file-level restore verification
+Windows domain services
++ Windows storage services
++ Veeam backup platform
++ Linux workload integration
++ verified backup and restore operations
 ```
 
-Documentation:
-
-- [Cross-Platform Linux-to-Windows Backup Integration](docs/windows/07-cross-platform-backup-integration.md)
+The strongest part of the project is that each major component was not only installed, but also validated with commands, screenshots, restore tests and documentation.
