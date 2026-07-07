@@ -196,3 +196,21 @@ This shows not only installation, but also operational validation.
 - Add Hyper-V VM backup test with Veeam
 - Add a final architecture diagram
 - Add a LinkedIn/GitHub project summary
+
+
+## Cross-Platform Linux-to-Windows Backup Integration
+
+The Linux `db-vm` is connected to the Windows enterprise network and writes backup data to the Windows SMB share through the DNS alias `files.enterprise.lab`.
+
+```text
+db-vm
+→ //files.enterprise.lab/LabShare
+→ \\files.enterprise.lab\LabShare\linux-backups
+→ Veeam backup job
+→ R:\Backups
+→ file-level restore verification
+```
+
+Documentation:
+
+- [Cross-Platform Linux-to-Windows Backup Integration](docs/windows/07-cross-platform-backup-integration.md)
