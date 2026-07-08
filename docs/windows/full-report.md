@@ -454,170 +454,170 @@ testuser01-gpo-drive-test.txt
 
 ### Server Manager with AD DS and DNS
 
-![Server Manager AD DS and DNS](../diagrams/windows-server/01-server-manager-ad-dns.png)
+![Server Manager AD DS and DNS](../../diagrams/windows-server/01-server-manager-ad-dns.png)
 
 ### Active Directory Domain
 
-![Active Directory Domain](../diagrams/windows-server/02-active-directory-domain.png)
+![Active Directory Domain](../../diagrams/windows-server/02-active-directory-domain.png)
 
 ### DNS Forward Lookup Zone
 
-![DNS Forward Lookup Zone](../diagrams/windows-server/03-dns-forward-zone.png)
+![DNS Forward Lookup Zone](../../diagrams/windows-server/03-dns-forward-zone.png)
 
 ### PowerShell AD and DNS Verification
 
-![PowerShell AD DNS Verification](../diagrams/windows-server/04-powershell-ad-dns-verification.png)
+![PowerShell AD DNS Verification](../../diagrams/windows-server/04-powershell-ad-dns-verification.png)
 
 ### Hyper-V Checkpoint after AD DS and DNS
 
-![Hyper-V AD DS DNS Checkpoint](../diagrams/windows-server/05-hyperv-dc-vm-checkpoint.png)
+![Hyper-V AD DS DNS Checkpoint](../../diagrams/windows-server/05-hyperv-dc-vm-checkpoint.png)
 
 ### Domain Controller Network Configuration
 
-![Domain Controller Network Configuration](../diagrams/windows-server/06-dc-vm-network-config.png)
+![Domain Controller Network Configuration](../../diagrams/windows-server/06-dc-vm-network-config.png)
 
 ### Server Manager with DHCP
 
-![Server Manager DHCP](../diagrams/windows-server/07-server-manager-dhcp.png)
+![Server Manager DHCP](../../diagrams/windows-server/07-server-manager-dhcp.png)
 
 ### DHCP Address Pool
 
-![DHCP Address Pool](../diagrams/windows-server/08-dhcp-addresses-pool.png)
+![DHCP Address Pool](../../diagrams/windows-server/08-dhcp-addresses-pool.png)
 
 ### DHCP Scope Options
 
-![DHCP Scope Options](../diagrams/windows-server/09-dhcp-scope-options.png)
+![DHCP Scope Options](../../diagrams/windows-server/09-dhcp-scope-options.png)
 
 ### DHCP PowerShell Verification
 
-![DHCP PowerShell Verification](../diagrams/windows-server/10-dhcp-powershell-verification.png)
+![DHCP PowerShell Verification](../../diagrams/windows-server/10-dhcp-powershell-verification.png)
 
 ### Hyper-V Checkpoint after DHCP
 
-![Hyper-V DHCP Checkpoint](../diagrams/windows-server/11-hyperv-dhcp-checkpoint.png)
+![Hyper-V DHCP Checkpoint](../../diagrams/windows-server/11-hyperv-dhcp-checkpoint.png)
 
 ### Windows Client DHCP Configuration
 
-![Windows Client DHCP Configuration](../diagrams/windows-server/12-client-dhcp-ipconfig.png)
+![Windows Client DHCP Configuration](../../diagrams/windows-server/12-client-dhcp-ipconfig.png)
 
 ### Windows Client Domain Verification
 
-![Windows Client Domain Verification](../diagrams/windows-server/13-client-domain-verification.png)
+![Windows Client Domain Verification](../../diagrams/windows-server/13-client-domain-verification.png)
 
 ### Domain User Logon
 
-![Domain User Logon](../diagrams/windows-server/14-client-domain-user-login.png)
+![Domain User Logon](../../diagrams/windows-server/14-client-domain-user-login.png)
 
 ### Active Directory Computer Object
 
-![Active Directory Computer Object](../diagrams/windows-server/15-ad-computer-object.png)
+![Active Directory Computer Object](../../diagrams/windows-server/15-ad-computer-object.png)
 
 ### DHCP Active Lease
 
-![DHCP Active Lease](../diagrams/windows-server/16-dhcp-active-lease.png)
+![DHCP Active Lease](../../diagrams/windows-server/16-dhcp-active-lease.png)
 
 ### Organizational Unit Structure
 
-![Organizational Unit Structure](../diagrams/windows-server/17-ou-structure.png)
+![Organizational Unit Structure](../../diagrams/windows-server/17-ou-structure.png)
 
 ### AD Users
 
-![AD Users](../diagrams/windows-server/18-ad-users.png)
+![AD Users](../../diagrams/windows-server/18-ad-users.png)
 
 ### AD Groups
 
-![AD Groups](../diagrams/windows-server/19-ad-groups.png)
+![AD Groups](../../diagrams/windows-server/19-ad-groups.png)
 
 ### Workstation Computer OU
 
-![Workstation Computer OU](../diagrams/windows-server/20-workstation-computer-ou.png)
+![Workstation Computer OU](../../diagrams/windows-server/20-workstation-computer-ou.png)
 
 ### GPO Linked to Workstations OU
 
-![GPO Linked to Workstations OU](../diagrams/windows-server/21-gpo-linked-workstations.png)
+![GPO Linked to Workstations OU](../../diagrams/windows-server/21-gpo-linked-workstations.png)
 
 ### GPO Linked to Users OU
 
-![GPO Linked to Users OU](../diagrams/windows-server/22-gpo-linked-users.png)
+![GPO Linked to Users OU](../../diagrams/windows-server/22-gpo-linked-users.png)
 
 ### User GPO Result
 
-![User GPO Result](../diagrams/windows-server/23-gpresult-user-gpo.png)
+![User GPO Result](../../diagrams/windows-server/23-gpresult-user-gpo.png)
 
 ### Legal Notice from GPO
 
-![Legal Notice from GPO](../diagrams/windows-server/23-legal-notice-login.png)
+![Legal Notice from GPO](../../diagrams/windows-server/23-legal-notice-login.png)
 
 ### Computer GPO Result
 
-![Computer GPO Result](../diagrams/windows-server/24-gpresult-computer-gpo.png)
+![Computer GPO Result](../../diagrams/windows-server/24-gpresult-computer-gpo.png)
 
 ### SMB Share Created
 
-![SMB Share Created](../diagrams/windows-server/25-smb-share-created.png)
+![SMB Share Created](../../diagrams/windows-server/25-smb-share-created.png)
 
 ### SMB Share and NTFS Permissions
 
-![SMB Share Permissions](../diagrams/windows-server/26-smb-share-permissions.png)
+![SMB Share Permissions](../../diagrams/windows-server/26-smb-share-permissions.png)
 
 ### Drive Mapping GPO
 
-![Drive Mapping GPO](../diagrams/windows-server/27-drive-mapping-gpo.png)
+![Drive Mapping GPO](../../diagrams/windows-server/27-drive-mapping-gpo.png)
 
 ### Drive Mapping GPO Result
 
-![Drive Mapping GPO Result](../diagrams/windows-server/28-gpresult-drive-mapping.png)
+![Drive Mapping GPO Result](../../diagrams/windows-server/28-gpresult-drive-mapping.png)
 
 ### Mapped Drive with net use
 
-![Mapped Drive net use](../diagrams/windows-server/29-mapped-drive-net-use.png)
+![Mapped Drive net use](../../diagrams/windows-server/29-mapped-drive-net-use.png)
 
 ### Mapped Drive in File Explorer
 
-![Mapped Drive Explorer](../diagrams/windows-server/30-mapped-drive-explorer.png)
+![Mapped Drive Explorer](../../diagrams/windows-server/30-mapped-drive-explorer.png)
 
 ### File Share Write Test
 
-![File Share Write Test](../diagrams/windows-server/31-file-share-write-test.png)
+![File Share Write Test](../../diagrams/windows-server/31-file-share-write-test.png)
 
 ---
 
 
 ### Storage VM in Servers OU
 
-![Storage VM in Servers OU](../diagrams/windows-server/32-storage-vm-server-ou.png)
+![Storage VM in Servers OU](../../diagrams/windows-server/32-storage-vm-server-ou.png)
 
 ### iSCSI Target Server Role Installed
 
-![iSCSI Target Server Role Installed](../diagrams/windows-server/33-iscsi-role-installed.png)
+![iSCSI Target Server Role Installed](../../diagrams/windows-server/33-iscsi-role-installed.png)
 
 ### iSCSI Virtual Disk
 
-![iSCSI Virtual Disk](../diagrams/windows-server/34-iscsi-virtual-disk.png)
+![iSCSI Virtual Disk](../../diagrams/windows-server/34-iscsi-virtual-disk.png)
 
 ### iSCSI Target Created
 
-![iSCSI Target Created](../diagrams/windows-server/35-iscsi-target-created.png)
+![iSCSI Target Created](../../diagrams/windows-server/35-iscsi-target-created.png)
 
 ### iSCSI Target Connected
 
-![iSCSI Target Connected](../diagrams/windows-server/36-iscsi-target-connected.png)
+![iSCSI Target Connected](../../diagrams/windows-server/36-iscsi-target-connected.png)
 
 ### Client iSCSI Portal and Target
 
-![Client iSCSI Portal and Target](../diagrams/windows-server/37-client-iscsi-portal-target.png)
+![Client iSCSI Portal and Target](../../diagrams/windows-server/37-client-iscsi-portal-target.png)
 
 ### Client iSCSI Session
 
-![Client iSCSI Session](../diagrams/windows-server/38-client-iscsi-session.png)
+![Client iSCSI Session](../../diagrams/windows-server/38-client-iscsi-session.png)
 
 ### Client iSCSI Disk and Volume
 
-![Client iSCSI Disk and Volume](../diagrams/windows-server/39-client-iscsi-disk-volume.png)
+![Client iSCSI Disk and Volume](../../diagrams/windows-server/39-client-iscsi-disk-volume.png)
 
 ### iSCSI Write Test
 
-![iSCSI Write Test](../diagrams/windows-server/40-iscsi-write-test.png)
+![iSCSI Write Test](../../diagrams/windows-server/40-iscsi-write-test.png)
 
 
 ## Notes
@@ -750,47 +750,47 @@ file content is readable
 
 #### Veeam Console Home
 
-![Veeam Console Home](../diagrams/windows-server/41-veeam-console-home.png)
+![Veeam Console Home](../../diagrams/windows-server/41-veeam-console-home.png)
 
 #### iSCSI Veeam Repository
 
-![iSCSI Veeam Repository](../diagrams/windows-server/42-veeam-iscsi-repository.png)
+![iSCSI Veeam Repository](../../diagrams/windows-server/42-veeam-iscsi-repository.png)
 
 #### Repository Volume and iSCSI Session
 
-![Repository Volume and iSCSI Session](../diagrams/windows-server/43-veeam-repository-volume.png)
+![Repository Volume and iSCSI Session](../../diagrams/windows-server/43-veeam-repository-volume.png)
 
 #### SMB File Share Source
 
-![SMB File Share Source](../diagrams/windows-server/44-veeam-smb-file-share-source.png)
+![SMB File Share Source](../../diagrams/windows-server/44-veeam-smb-file-share-source.png)
 
 #### File Share Backup Job
 
-![File Share Backup Job](../diagrams/windows-server/45-veeam-file-share-backup-job.png)
+![File Share Backup Job](../../diagrams/windows-server/45-veeam-file-share-backup-job.png)
 
 #### Repository Backup Files
 
-![Repository Backup Files](../diagrams/windows-server/46-veeam-repository-files.png)
+![Repository Backup Files](../../diagrams/windows-server/46-veeam-repository-files.png)
 
 #### Source File Deleted
 
-![Source File Deleted](../diagrams/windows-server/49-veeam-source-file-deleted.png)
+![Source File Deleted](../../diagrams/windows-server/49-veeam-source-file-deleted.png)
 
 #### File Restore Browser
 
-![File Restore Browser](../diagrams/windows-server/50-veeam-file-restore-browser.png)
+![File Restore Browser](../../diagrams/windows-server/50-veeam-file-restore-browser.png)
 
 #### Restored File Verification
 
-![Restored File Verification](../diagrams/windows-server/51-veeam-file-restore-success.png)
+![Restored File Verification](../../diagrams/windows-server/51-veeam-file-restore-success.png)
 
 #### Restore Completed Successfully
 
-![Restore Completed Successfully](../diagrams/windows-server/52-veeam-restore-completed-successfully.png)
+![Restore Completed Successfully](../../diagrams/windows-server/52-veeam-restore-completed-successfully.png)
 
 #### Restore History
 
-![Restore History](../diagrams/windows-server/53-veeam-restore-history.png)
+![Restore History](../../diagrams/windows-server/53-veeam-restore-history.png)
 
 ### Lab Notes
 
